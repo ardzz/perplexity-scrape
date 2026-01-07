@@ -42,7 +42,7 @@ Add to your MCP config:
   "mcpServers": {
     "perplexity": {
       "command": "python",
-      "args": ["d:/PythonProject/perplexity-mcp/server.py"],
+      "args": ["/path/to/perplexity-mcp/server.py"],
       "env": {}
     }
   }

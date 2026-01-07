@@ -10,10 +10,7 @@ from mcp.server.fastmcp import FastMCP
 from perplexity_client import PerplexityClient
 
 
-# Initialize the MCP server
 mcp = FastMCP("Perplexity Search")
-
-# Initialize client lazily to avoid startup errors
 _client: Optional[PerplexityClient] = None
 
 
@@ -54,7 +51,7 @@ def perplexity_ask(
     
     return {
         "text": response.text,
-        "citations": response.citations[:10],  # Limit citations
+        "citations": response.citations,
         "related_queries": response.related_queries,
         "media_count": len(response.media_items),
     }
@@ -97,11 +94,77 @@ def perplexity_academic_search(query: str) -> dict:
     
     return {
         "text": response.text,
-        "citations": response.citations[:10],
+        "citations": response.citations,
+        "related_queries": response.related_queries,
+    }
+
+
+@mcp.tool()
+def perplexity_comprehensive_search(query: str) -> dict:
+    """
+    Search both web and academic sources using Perplexity AI.
+    
+    Args:
+        query: The search query
+        
+    Returns:
+        Dictionary with comprehensive answer combining web and scholarly sources
+    """
+    client = get_client()
+    response = client.ask(
+        query=query,
+        mode="copilot",
+        search_focus="internet",
+        sources=["web", "scholar"],
+    )
+    
+    return {
+        "text": response.text,
+        "citations": response.citations,
+        "related_queries": response.related_queries,
+    }
+@mcp.tool()
+def perplexity_research(topic: str, category: str = "general") -> dict:
+    """
+    Research a topic using Perplexity AI with pplx_alpha (fast research model).
+    
+    Best for: Getting comprehensive background research with formal definitions,
+    theorems, and academic sources.
+    
+    Args:
+        topic: The topic to research
+        category: Context category (e.g., "machine learning", "mathematics")
+        
+    Returns:
+        Dictionary with research findings and citations
+    """
+    research_prompt = f"""Research the mathematical foundations of "{topic}" in the context of {category}.
+
+Provide:
+1. **Formal mathematical definitions** with proper LaTeX notation
+2. **Key theorems and their proofs/derivations**
+3. **Step-by-step worked examples** with real-world data
+4. **Practical implementation considerations**
+5. **Common mistakes and edge cases**
+6. **Prerequisites** needed to understand this topic
+
+Use academic sources and textbooks where possible."""
+
+    client = get_client()
+    response = client.ask(
+        query=research_prompt,
+        mode="copilot",
+        model_preference="pplx_alpha",  # Fast research model
+        search_focus="internet",
+        sources=["web", "scholar"],
+    )
+    
+    return {
+        "text": response.text,
+        "citations": response.citations,
         "related_queries": response.related_queries,
     }
 
 
 if __name__ == "__main__":
-    # Run with stdio transport for MCP
     mcp.run()

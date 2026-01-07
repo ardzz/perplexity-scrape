@@ -55,39 +55,34 @@ class PerplexityClient:
                 "and PERPLEXITY_VISITOR_ID in your .env file."
             )
     
-    def _build_cookies(self) -> str:
-        """Build cookie string for requests."""
+    def _build_cookies(self) -> dict:
+        """Build cookies dict for requests."""
         cookies = {
             "pplx.visitor-id": self.visitor_id,
-            "__cflb": "02DiuDyvFMmK5p9jVbVnMNSKYZhUL9aGmvtvAHfpio9QG",
-            "pplx.session-id": self.session_id,
+            "__Secure-next-auth.session-token": self.session_token,
             "cf_clearance": self.cf_clearance,
+            "pplx.session-id": self.session_id,
         }
         
         if self.cf_bm:
             cookies["__cf_bm"] = self.cf_bm
         
-        return "; ".join(f"{k}={v}" for k, v in cookies.items() if v)
+        return {k: v for k, v in cookies.items() if v}
     
     def _build_headers(self, request_id: str) -> dict[str, str]:
         """Build request headers."""
         return {
-            "Accept": "text/event-stream",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Content-Type": "application/json",
-            "Cookie": self._build_cookies(),
-            "Origin": self.BASE_URL,
-            "Referer": f"{self.BASE_URL}/",
-            "Sec-Ch-Ua": '"Microsoft Edge";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
-            "Sec-Ch-Ua-Mobile": "?0",
-            "Sec-Ch-Ua-Platform": '"Windows"',
-            "Sec-Fetch-Dest": "empty",
-            "Sec-Fetch-Mode": "cors",
-            "Sec-Fetch-Site": "same-origin",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",
-            "X-Request-Id": request_id,
-            "X-Perplexity-Request-Reason": "perplexity-query-state-provider",
+            "accept": "text/event-stream",
+            "accept-language": "en-US,en;q=0.9",
+            "content-type": "application/json",
+            "origin": self.BASE_URL,
+            "referer": f"{self.BASE_URL}/?",
+            "sec-ch-ua": '"Microsoft Edge";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"Windows"',
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "x-perplexity-request-reason": "perplexity-query-state-provider",
+            "x-request-id": request_id,
         }
     
     def _build_payload(
@@ -132,8 +127,13 @@ class PerplexityClient:
                     "flight_status_widgets", "news_widgets", "shopping_widgets",
                     "jobs_widgets", "search_result_widgets", "inline_images",
                     "inline_assets", "placeholder_cards", "diff_blocks",
-                    "inline_knowledge_cards", "entity_group_v2"
+                    "inline_knowledge_cards", "entity_group_v2", "refinement_filters",
+                    "canvas_mode", "maps_preview", "answer_tabs", "price_comparison_widgets",
+                    "preserve_latex", "in_context_suggestions"
                 ],
+                "dsl_query": query,
+                "skip_search_enabled": True,
+                "version": "2.18"
             },
             "query_str": query,
         }
@@ -174,6 +174,7 @@ class PerplexityClient:
             Parsed SSE event dictionaries
         """
         request_id = str(uuid.uuid4())
+        cookies = self._build_cookies()
         headers = self._build_headers(request_id)
         payload = self._build_payload(
             query=query,
@@ -189,8 +190,10 @@ class PerplexityClient:
         response = cffi_requests.post(
             url,
             headers=headers,
+            cookies=cookies,
             json=payload,
-            impersonate="chrome",
+            impersonate="edge",
+            timeout=600,
             stream=True,
         )
         

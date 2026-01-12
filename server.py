@@ -138,17 +138,16 @@ def perplexity_research(topic: str, category: str = "general") -> dict:
     Returns:
         Dictionary with research findings and citations
     """
-    research_prompt = f"""Research the mathematical foundations of "{topic}" in the context of {category}.
+    research_prompt = f"""Research "{topic}" in the context of {category}.
 
-Provide:
-1. **Formal mathematical definitions** with proper LaTeX notation
-2. **Key theorems and their proofs/derivations**
-3. **Step-by-step worked examples** with real-world data
-4. **Practical implementation considerations**
-5. **Common mistakes and edge cases**
-6. **Prerequisites** needed to understand this topic
+Provide a comprehensive overview including:
+1. **Definition and core concepts**
+2. **Key principles and how it works**
+3. **Practical examples and use cases**
+4. **Important considerations and best practices**
+5. **Related topics and further reading**
 
-Use academic sources and textbooks where possible."""
+Use credible sources and cite where possible."""
 
     client = get_client()
     response = client.ask(

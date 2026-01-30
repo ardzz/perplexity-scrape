@@ -1,0 +1,67 @@
+# MCP Server Only (HTTP Transport)
+# Image: ghcr.io/ardzz/perplexity-mcp-http
+
+# Stage 1: Builder
+FROM python:3.12-slim-bookworm AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install Python dependencies
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Stage 2: Runtime
+FROM python:3.12-slim-bookworm AS runtime
+
+LABEL org.opencontainers.image.source="https://github.com/ardzz/perplexity-mcp"
+LABEL org.opencontainers.image.description="MCP Server for Perplexity AI (HTTP Transport)"
+LABEL org.opencontainers.image.licenses="MIT"
+
+# Install runtime dependencies only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcurl4 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash appuser
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+WORKDIR /app
+
+# Copy application code (MCP server only)
+COPY --chown=appuser:appuser mcp_service.py .
+COPY --chown=appuser:appuser perplexity_client.py .
+COPY --chown=appuser:appuser src/ ./src/
+
+# Switch to non-root user
+USER appuser
+
+# MCP HTTP server runs on port 8000
+EXPOSE 8000
+
+# Set environment for HTTP transport mode
+ENV MCP_TRANSPORT_MODE=http
+ENV MCP_HTTP_HOST=0.0.0.0
+ENV MCP_HTTP_PORT=8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/mcp -X POST -H "Content-Type: application/json" -d '{}' || exit 1
+
+# Run the MCP server in HTTP mode
+CMD ["python", "mcp_service.py"]

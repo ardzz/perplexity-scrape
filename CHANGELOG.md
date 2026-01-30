@@ -1,7 +1,35 @@
 # CHANGELOG
 
 
+## v0.6.0 (2026-01-30)
+
+### Features
+
+- **docker**: Add multi-image build pipeline for MCP, OpenAI, and unified servers
+  ([`2c03675`](https://github.com/ardzz/perplexity-scrape/commit/2c0367509bdeffbbc7c23356a38f2de3b357fba7))
+
+- Add docker/Dockerfile.mcp for MCP HTTP server (port 8000) - Add docker/Dockerfile.openai for REST
+  API server (port 8045) - Add docker/Dockerfile.combined for unified server (REST + MCP) - Update
+  release.yml with matrix strategy to build 3 images: - ghcr.io/ardzz/perplexity-mcp -
+  ghcr.io/ardzz/perplexity-openai - ghcr.io/ardzz/perplexity-scrape - Maintain multi-platform
+  support (amd64/arm64) - Add per-image GitHub Actions caching
+
+### Refactoring
+
+- Rename server entry points to service-oriented naming
+  ([`65c09bb`](https://github.com/ardzz/perplexity-scrape/commit/65c09bbae40bad11ae751e61fa111ade65ddf438))
+
+- server.py → mcp_service.py - rest_server.py → rest_api_service.py - combined_server.py →
+  unified_service.py - Updated Dockerfile COPY and CMD to use new names - Updated internal imports
+  in unified_service.py
+
+
 ## v0.5.0 (2026-01-30)
+
+### Chores
+
+- **release**: 0.5.0
+  ([`c562ddc`](https://github.com/ardzz/perplexity-scrape/commit/c562ddcd51f5c1f41ddb9d02c93642ece3dfe736))
 
 ### Features
 

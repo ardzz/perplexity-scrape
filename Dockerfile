@@ -43,7 +43,6 @@ WORKDIR /app
 # Copy application code
 COPY --chown=appuser:appuser rest_server.py .
 COPY --chown=appuser:appuser perplexity_client.py .
-COPY --chown=appuser:appuser perplexity_research.py .
 COPY --chown=appuser:appuser src/ ./src/
 
 # Switch to non-root user

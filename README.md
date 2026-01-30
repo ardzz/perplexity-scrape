@@ -363,6 +363,85 @@ API_KEY=
 
 ---
 
+## Docker Deployment
+
+Pre-built Docker images are available on GitHub Container Registry.
+
+### Available Images
+
+| Image | Description | Port |
+|-------|-------------|------|
+| `ghcr.io/ardzz/perplexity-scrape` | Combined server (REST API + MCP) | 8045 |
+| `ghcr.io/ardzz/perplexity-openai` | REST API only | 8045 |
+| `ghcr.io/ardzz/perplexity-mcp` | MCP HTTP server only | 8000 |
+
+### Quick Start with Docker
+
+```bash
+docker run -d \
+  --name perplexity \
+  -p 8045:8045 \
+  -e PERPLEXITY_SESSION_TOKEN=your_session_token \
+  -e PERPLEXITY_CF_CLEARANCE=your_cf_clearance \
+  -e PERPLEXITY_VISITOR_ID=your_visitor_id \
+  -e PERPLEXITY_SESSION_ID=your_session_id \
+  -e API_KEY=your-api-key \
+  ghcr.io/ardzz/perplexity-scrape:latest
+```
+
+### Docker Compose
+
+```yaml
+version: '3.8'
+
+services:
+  perplexity:
+    image: ghcr.io/ardzz/perplexity-scrape:latest
+    container_name: perplexity
+    restart: unless-stopped
+    ports:
+      - "8045:8045"
+    environment:
+      # Perplexity credentials (required)
+      - PERPLEXITY_SESSION_TOKEN=your_session_token
+      - PERPLEXITY_CF_CLEARANCE=your_cf_clearance
+      - PERPLEXITY_VISITOR_ID=your_visitor_id
+      - PERPLEXITY_SESSION_ID=your_session_id
+      # Optional settings
+      - API_KEY=your-api-key
+      - DEFAULT_MODEL=claude45sonnetthinking
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8045/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+### Building from Source
+
+```bash
+# Combined server (recommended)
+docker build -f docker/Dockerfile.combined -t perplexity-scrape .
+
+# REST API only
+docker build -f docker/Dockerfile.openai -t perplexity-openai .
+
+# MCP server only
+docker build -f docker/Dockerfile.mcp -t perplexity-mcp .
+```
+
+### Deployment Platforms
+
+The Docker images work with any container platform:
+
+- **Coolify** - Set environment variables in the deployment settings
+- **Railway** - Use the Docker image URL directly
+- **Fly.io** - Deploy with `fly launch --image ghcr.io/ardzz/perplexity-scrape`
+- **DigitalOcean App Platform** - Use container registry image
+- **AWS ECS / Google Cloud Run / Azure Container Apps** - Standard container deployment
+
+---
+
 ## Environment Variables
 
 | Variable | Default | Description |

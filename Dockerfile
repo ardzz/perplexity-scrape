@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 FROM python:3.12-slim-bookworm AS runtime
 
 LABEL org.opencontainers.image.source="https://github.com/ardzz/perplexity-mcp"
-LABEL org.opencontainers.image.description="OpenAI-compatible REST API for Perplexity AI"
+LABEL org.opencontainers.image.description="OpenAI-compatible REST API + MCP Server for Perplexity AI"
 LABEL org.opencontainers.image.licenses="MIT"
 
 # Install runtime dependencies only
@@ -41,7 +41,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /app
 
 # Copy application code
+COPY --chown=appuser:appuser combined_server.py .
 COPY --chown=appuser:appuser rest_server.py .
+COPY --chown=appuser:appuser server.py .
 COPY --chown=appuser:appuser perplexity_client.py .
 COPY --chown=appuser:appuser src/ ./src/
 
@@ -55,5 +57,5 @@ EXPOSE 8045
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8045/ || exit 1
 
-# Run the application
-CMD ["python", "-m", "uvicorn", "rest_server:app", "--host", "0.0.0.0", "--port", "8045"]
+# Run the combined server (REST API + MCP on same port)
+CMD ["python", "-m", "uvicorn", "combined_server:app", "--host", "0.0.0.0", "--port", "8045"]

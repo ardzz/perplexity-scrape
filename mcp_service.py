@@ -101,14 +101,31 @@ Include working code examples with proper imports and error handling.""",
 VALID_CATEGORIES = set(PROGRAMMING_RESEARCH_PROMPTS.keys())
 
 
-def get_allowed_hosts() -> list[str]:
-    """Get allowed hosts for MCP transport security.
+def get_transport_security() -> TransportSecuritySettings:
+    """Configure MCP transport security settings.
 
-    Includes localhost defaults plus any hosts from MCP_ALLOWED_HOSTS env var.
-    Use MCP_ALLOWED_HOSTS to add external domains (comma-separated).
-    Example: MCP_ALLOWED_HOSTS=api.example.com,*.sslip.io
+    By default, DNS rebinding protection is DISABLED for ease of deployment
+    behind reverse proxies. Set MCP_ENABLE_HOST_CHECK=true to enable it.
+
+    When enabled, use MCP_ALLOWED_HOSTS to specify allowed domains (comma-separated).
+    Example: MCP_ALLOWED_HOSTS=api.example.com,myapp.sslip.io
+
+    Environment variables:
+        MCP_ENABLE_HOST_CHECK: Set to 'true' to enable host validation (default: false)
+        MCP_ALLOWED_HOSTS: Comma-separated list of allowed hosts (only when check enabled)
     """
-    default_hosts = [
+    enable_check = os.environ.get("MCP_ENABLE_HOST_CHECK", "").lower() in (
+        "true",
+        "1",
+        "yes",
+    )
+
+    if not enable_check:
+        # Disabled by default - allows any host (typical for proxy deployments)
+        return TransportSecuritySettings(enable_dns_rebinding_protection=False)
+
+    # Host check enabled - configure allowed hosts
+    allowed_hosts = [
         "localhost",
         "localhost:*",
         "127.0.0.1",
@@ -120,16 +137,16 @@ def get_allowed_hosts() -> list[str]:
     # Add custom hosts from environment variable
     custom_hosts = os.environ.get("MCP_ALLOWED_HOSTS", "")
     if custom_hosts:
-        default_hosts.extend([h.strip() for h in custom_hosts.split(",") if h.strip()])
+        allowed_hosts.extend([h.strip() for h in custom_hosts.split(",") if h.strip()])
 
-    return default_hosts
+    return TransportSecuritySettings(
+        enable_dns_rebinding_protection=True,
+        allowed_hosts=allowed_hosts,
+    )
 
 
-# Configure transport security with allowed hosts
-transport_security = TransportSecuritySettings(
-    enable_dns_rebinding_protection=True,
-    allowed_hosts=get_allowed_hosts(),
-)
+# Configure transport security (disabled by default for proxy compatibility)
+transport_security = get_transport_security()
 
 mcp = FastMCP("Perplexity Search", transport_security=transport_security)
 _client: Optional[PerplexityClient] = None

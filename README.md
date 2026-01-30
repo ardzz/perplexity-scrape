@@ -1,22 +1,93 @@
-# Perplexity MCP Server
+# Perplexity Scrape
 
-An MCP server and OpenAI-compatible REST API that provides Perplexity AI search capabilities.
+[![GitHub Stars](https://img.shields.io/github/stars/ardzz/perplexity-scrape?style=flat-square)](https://github.com/ardzz/perplexity-scrape/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/ardzz/perplexity-scrape?style=flat-square)](https://github.com/ardzz/perplexity-scrape/network/members)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg?style=flat-square)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg?style=flat-square&logo=docker)](https://ghcr.io/ardzz/perplexity-scrape)
+[![MCP](https://img.shields.io/badge/MCP-compatible-green.svg?style=flat-square)](https://modelcontextprotocol.io/)
+
+> **Access premium AI models (Claude, GPT, Gemini, Grok) through Perplexity AI** — as an MCP server for AI assistants or an OpenAI-compatible REST API for any application.
+
+Transform your Perplexity Pro subscription into a powerful API backend. Use cutting-edge AI models like Claude 4.5 Sonnet, GPT-5.2, Gemini 3, and Grok 4.1 through a single unified interface — no separate API keys needed.
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Setup](#setup)
+- [MCP Server](#mcp-server)
+  - [Run Modes](#run-mcp-server-stdio-mode---default)
+  - [Client Configuration](#mcp-client-configuration)
+  - [HTTP Examples](#mcp-http-examples)
+  - [Available Tools](#available-mcp-tools)
+  - [Research Categories](#research-categories)
+- [OpenAI-Compatible REST API](#openai-compatible-rest-api)
+  - [Endpoints](#endpoints)
+  - [Examples](#curl-example)
+- [Combined Server](#combined-server-rest-api--mcp)
+- [Docker Deployment](#docker-deployment)
+  - [Available Images](#available-images)
+  - [Docker Compose](#docker-compose)
+  - [Deployment Platforms](#deployment-platforms)
+- [Authentication](#authentication)
+- [Available Models](#available-models)
+- [Environment Variables](#environment-variables)
+- [License](#license)
+
+---
 
 ## Features
 
-- **MCP Server**: 6 specialized search tools for AI assistants
-- **REST API**: OpenAI-compatible `/v1/chat/completions` endpoint
-- **Multi-Model**: Access Claude, GPT, Gemini, Grok, Kimi through Perplexity
-- **Optional Authentication**: Protect endpoints with API key authentication
+| Feature | Description |
+|---------|-------------|
+| **MCP Server** | 6 specialized search tools for AI assistants (Claude Desktop, OpenCode, etc.) |
+| **REST API** | OpenAI-compatible `/v1/chat/completions` endpoint — drop-in replacement |
+| **Multi-Model** | Access Claude, GPT, Gemini, Grok, Kimi through a single Perplexity account |
+| **Web Search** | Real-time internet search with citations and sources |
+| **Academic Search** | Scholarly sources from academic databases |
+| **Docker Ready** | Pre-built images on GitHub Container Registry |
+| **Optional Auth** | Protect endpoints with API key authentication |
+
+---
+
+## Quick Start
+
+**Docker (recommended):**
+```bash
+docker run -d -p 8045:8045 \
+  -e PERPLEXITY_SESSION_TOKEN=your_token \
+  -e PERPLEXITY_CF_CLEARANCE=your_clearance \
+  -e PERPLEXITY_VISITOR_ID=your_visitor_id \
+  -e PERPLEXITY_SESSION_ID=your_session_id \
+  ghcr.io/ardzz/perplexity-scrape:latest
+```
+
+**Local:**
+```bash
+pip install -r requirements.txt
+python unified_service.py
+```
+
+Then use the API:
+```bash
+curl http://localhost:8045/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model": "claude-4.5-sonnet-thinking", "messages": [{"role": "user", "content": "Hello!"}]}'
+```
+
+---
 
 ## Setup
 
-1. Install dependencies:
+1. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Configure `.env` file with your Perplexity credentials:
+2. **Configure `.env` file** with your Perplexity credentials:
 ```env
 PERPLEXITY_SESSION_TOKEN=your_session_token
 PERPLEXITY_CF_CLEARANCE=your_cf_clearance
@@ -262,6 +333,85 @@ curl -X POST http://localhost:8045/mcp \
 
 ---
 
+## Docker Deployment
+
+Pre-built Docker images are available on GitHub Container Registry.
+
+### Available Images
+
+| Image | Description | Port |
+|-------|-------------|------|
+| `ghcr.io/ardzz/perplexity-scrape` | Combined server (REST API + MCP) | 8045 |
+| `ghcr.io/ardzz/perplexity-openai` | REST API only | 8045 |
+| `ghcr.io/ardzz/perplexity-mcp` | MCP HTTP server only | 8000 |
+
+### Quick Start with Docker
+
+```bash
+docker run -d \
+  --name perplexity \
+  -p 8045:8045 \
+  -e PERPLEXITY_SESSION_TOKEN=your_session_token \
+  -e PERPLEXITY_CF_CLEARANCE=your_cf_clearance \
+  -e PERPLEXITY_VISITOR_ID=your_visitor_id \
+  -e PERPLEXITY_SESSION_ID=your_session_id \
+  -e API_KEY=your-api-key \
+  ghcr.io/ardzz/perplexity-scrape:latest
+```
+
+### Docker Compose
+
+```yaml
+version: '3.8'
+
+services:
+  perplexity:
+    image: ghcr.io/ardzz/perplexity-scrape:latest
+    container_name: perplexity
+    restart: unless-stopped
+    ports:
+      - "8045:8045"
+    environment:
+      # Perplexity credentials (required)
+      - PERPLEXITY_SESSION_TOKEN=your_session_token
+      - PERPLEXITY_CF_CLEARANCE=your_cf_clearance
+      - PERPLEXITY_VISITOR_ID=your_visitor_id
+      - PERPLEXITY_SESSION_ID=your_session_id
+      # Optional settings
+      - API_KEY=your-api-key
+      - DEFAULT_MODEL=claude45sonnetthinking
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8045/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+### Building from Source
+
+```bash
+# Combined server (recommended)
+docker build -f docker/Dockerfile.combined -t perplexity-scrape .
+
+# REST API only
+docker build -f docker/Dockerfile.openai -t perplexity-openai .
+
+# MCP server only
+docker build -f docker/Dockerfile.mcp -t perplexity-mcp .
+```
+
+### Deployment Platforms
+
+The Docker images work with any container platform:
+
+- **Coolify** - Set environment variables in the deployment settings
+- **Railway** - Use the Docker image URL directly
+- **Fly.io** - Deploy with `fly launch --image ghcr.io/ardzz/perplexity-scrape`
+- **DigitalOcean App Platform** - Use container registry image
+- **AWS ECS / Google Cloud Run / Azure Container Apps** - Standard container deployment
+
+---
+
 ## Authentication
 
 API key authentication is **optional** and disabled by default. When enabled, it protects the `/v1/chat/completions` and `/v1/models` endpoints.
@@ -363,89 +513,14 @@ API_KEY=
 
 ---
 
-## Docker Deployment
-
-Pre-built Docker images are available on GitHub Container Registry.
-
-### Available Images
-
-| Image | Description | Port |
-|-------|-------------|------|
-| `ghcr.io/ardzz/perplexity-scrape` | Combined server (REST API + MCP) | 8045 |
-| `ghcr.io/ardzz/perplexity-openai` | REST API only | 8045 |
-| `ghcr.io/ardzz/perplexity-mcp` | MCP HTTP server only | 8000 |
-
-### Quick Start with Docker
-
-```bash
-docker run -d \
-  --name perplexity \
-  -p 8045:8045 \
-  -e PERPLEXITY_SESSION_TOKEN=your_session_token \
-  -e PERPLEXITY_CF_CLEARANCE=your_cf_clearance \
-  -e PERPLEXITY_VISITOR_ID=your_visitor_id \
-  -e PERPLEXITY_SESSION_ID=your_session_id \
-  -e API_KEY=your-api-key \
-  ghcr.io/ardzz/perplexity-scrape:latest
-```
-
-### Docker Compose
-
-```yaml
-version: '3.8'
-
-services:
-  perplexity:
-    image: ghcr.io/ardzz/perplexity-scrape:latest
-    container_name: perplexity
-    restart: unless-stopped
-    ports:
-      - "8045:8045"
-    environment:
-      # Perplexity credentials (required)
-      - PERPLEXITY_SESSION_TOKEN=your_session_token
-      - PERPLEXITY_CF_CLEARANCE=your_cf_clearance
-      - PERPLEXITY_VISITOR_ID=your_visitor_id
-      - PERPLEXITY_SESSION_ID=your_session_id
-      # Optional settings
-      - API_KEY=your-api-key
-      - DEFAULT_MODEL=claude45sonnetthinking
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8045/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-```
-
-### Building from Source
-
-```bash
-# Combined server (recommended)
-docker build -f docker/Dockerfile.combined -t perplexity-scrape .
-
-# REST API only
-docker build -f docker/Dockerfile.openai -t perplexity-openai .
-
-# MCP server only
-docker build -f docker/Dockerfile.mcp -t perplexity-mcp .
-```
-
-### Deployment Platforms
-
-The Docker images work with any container platform:
-
-- **Coolify** - Set environment variables in the deployment settings
-- **Railway** - Use the Docker image URL directly
-- **Fly.io** - Deploy with `fly launch --image ghcr.io/ardzz/perplexity-scrape`
-- **DigitalOcean App Platform** - Use container registry image
-- **AWS ECS / Google Cloud Run / Azure Container Apps** - Standard container deployment
-
----
-
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
+| `PERPLEXITY_SESSION_TOKEN` | *(required)* | Session token from Perplexity cookies |
+| `PERPLEXITY_CF_CLEARANCE` | *(required)* | Cloudflare clearance token |
+| `PERPLEXITY_VISITOR_ID` | *(required)* | Visitor ID from Perplexity |
+| `PERPLEXITY_SESSION_ID` | *(required)* | Session ID from Perplexity |
 | `REST_API_HOST` | `127.0.0.1` | REST API host |
 | `REST_API_PORT` | `8045` | REST API port |
 | `DEFAULT_MODEL` | `claude45sonnetthinking` | Default model for requests |

@@ -24,7 +24,7 @@ PERPLEXITY_VISITOR_ID=your_visitor_id
 PERPLEXITY_SESSION_ID=your_session_id
 ```
 
-> **Note**: Get these values from browser DevTools → Network tab → Copy cookies from any Perplexity request.
+> **Getting Cookies**: Use the [Perplexity Cookies Extension](https://github.com/ardzz/perplexity-cookies) to easily extract these values, or manually copy them from browser DevTools → Network tab → Copy cookies from any Perplexity request.
 
 ---
 

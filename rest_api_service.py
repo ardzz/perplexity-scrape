@@ -6,6 +6,7 @@ Run with: python rest_server.py
 """
 
 import logging
+from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +22,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan handler."""
+    # Startup
+    logger.info(f"Starting {config.api_title} v{config.api_version}")
+    logger.info(
+        f"Server running at http://{config.rest_api_host}:{config.rest_api_port}"
+    )
+    logger.info("Documentation available at /docs")
+    yield
+    # Shutdown (if needed in future)
+
+
 # Create FastAPI app
 app = FastAPI(
     title=config.api_title,
@@ -28,6 +43,7 @@ app = FastAPI(
     description="OpenAI-compatible REST API for Perplexity AI",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Add CORS middleware
@@ -60,16 +76,6 @@ async def root():
             "docs": "/docs",
         },
     }
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Log startup information."""
-    logger.info(f"Starting {config.api_title} v{config.api_version}")
-    logger.info(
-        f"Server running at http://{config.rest_api_host}:{config.rest_api_port}"
-    )
-    logger.info("Documentation available at /docs")
 
 
 if __name__ == "__main__":

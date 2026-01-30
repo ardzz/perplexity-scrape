@@ -44,7 +44,6 @@ WORKDIR /app
 COPY --chown=appuser:appuser unified_service.py .
 COPY --chown=appuser:appuser rest_api_service.py .
 COPY --chown=appuser:appuser mcp_service.py .
-COPY --chown=appuser:appuser perplexity_client.py .
 COPY --chown=appuser:appuser src/ ./src/
 
 # Switch to non-root user

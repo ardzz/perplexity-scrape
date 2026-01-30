@@ -3,6 +3,7 @@ Test script for Perplexity API Client.
 """
 
 import sys
+import pytest
 from src.core.perplexity_client import PerplexityClient, PerplexityResponse
 
 
@@ -17,7 +18,7 @@ def test_basic_query():
         print("✓ Client initialized successfully")
     except ValueError as e:
         print(f"✗ Failed to initialize client: {e}")
-        return False
+        pytest.fail(f"Failed to initialize client: {e}")
 
     query = "What is the capital of France?"
     print(f"\nQuery: {query}")
@@ -45,7 +46,7 @@ def test_basic_query():
         import traceback
 
         traceback.print_exc()
-        return False
+        pytest.fail(f"Streaming failed: {e}")
 
     # Test full response
     print("\n" + "-" * 60)
@@ -69,14 +70,14 @@ def test_basic_query():
             if len(response.text) > 500:
                 print("... (truncated)")
 
-        return True
+        assert True  # Test passed
 
     except Exception as e:
         print(f"\n✗ Full response failed: {e}")
         import traceback
 
         traceback.print_exc()
-        return False
+        pytest.fail(f"Full response failed: {e}")
 
 
 def main():

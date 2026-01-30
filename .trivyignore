@@ -1,0 +1,30 @@
+# Trivy Ignore File
+# Documentation: https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/
+#
+# This file allows you to suppress specific CVE findings that have been
+# reviewed and determined to be false positives or accepted risks.
+#
+# =============================================================================
+# FORMAT
+# =============================================================================
+# Each line should contain a CVE ID to ignore. Comments start with #.
+#
+# Example:
+# CVE-2023-12345  # Accepted risk: Not exploitable in our context because...
+# CVE-2024-67890  # False positive: Package is not used in production
+#
+# =============================================================================
+# GUIDELINES
+# =============================================================================
+# 1. ALWAYS document WHY a CVE is being suppressed
+# 2. Review suppressions periodically (quarterly recommended)
+# 3. Only suppress after security team review
+# 4. Prefer upgrading dependencies over suppressing CVEs
+#
+# =============================================================================
+# SUPPRESSED VULNERABILITIES
+# =============================================================================
+# None currently - add CVEs here as they are reviewed and accepted
+#
+# Example format:
+# CVE-YYYY-NNNNN  # [Date] Reason: Description of why this is acceptable

@@ -1,6 +1,54 @@
 # CHANGELOG
 
 
+## v0.6.3 (2026-01-30)
+
+### Bug Fixes
+
+- Update stale imports in test files
+  ([`0d95122`](https://github.com/ardzz/perplexity-scrape/commit/0d95122ef88548dd06cba031498f749e25f09408))
+
+- Fix rest_server -> rest_api_service imports - Fix server -> mcp_service imports - All 27 existing
+  tests now pass
+
+### Documentation
+
+- Add Docker deployment documentation with GHCR images and compose example
+  ([`1859d2e`](https://github.com/ardzz/perplexity-scrape/commit/1859d2e081bbaa4908247f770be6d9b31ff2b127))
+
+- Add link to Perplexity Cookies browser extension for easier setup
+  ([`a218659`](https://github.com/ardzz/perplexity-scrape/commit/a218659ba0acae6ca682d0fcfb419b755402f496))
+
+- Add OpenCode stdio local mode configuration example
+  ([`d6b0b1c`](https://github.com/ardzz/perplexity-scrape/commit/d6b0b1ceefcfc09697f00c5bdb373175152e43cd))
+
+- Enhance README with badges, table of contents, and improved description
+  ([`ea27c4f`](https://github.com/ardzz/perplexity-scrape/commit/ea27c4f904737262cade113e1dc25e34aff652cc))
+
+- Add shields.io badges (stars, forks, license, Python, Docker, MCP) - Add comprehensive table of
+  contents with anchor links - Add Quick Start section for immediate usage - Improve project
+  description highlighting multi-model access - Add Features table for better overview - Add
+  required Perplexity env vars to Environment Variables table - Rename title from 'Perplexity MCP
+  Server' to 'Perplexity Scrape'
+
+- Update README with new service names, OpenCode config, and MCP security options
+  ([`25267de`](https://github.com/ardzz/perplexity-scrape/commit/25267de012858acd324e240fa2384ae19fae65a7))
+
+- Update script names: server.py → mcp_service.py, rest_server.py → rest_api_service.py,
+  combined_server.py → unified_service.py - Add OpenCode remote MCP configuration example - Add MCP
+  HTTP examples with proper session handling - Document MCP_ENABLE_HOST_CHECK and MCP_ALLOWED_HOSTS
+  env vars - Fix Mcp-Session-Id header casing
+
+### Refactoring
+
+- Move perplexity_client.py to src/core/
+  ([`120a8e3`](https://github.com/ardzz/perplexity-scrape/commit/120a8e3396e93085961b055b1ea7c2821b8f51fb))
+
+- Move perplexity_client.py to src/core/perplexity_client.py - Move test_client.py to
+  tests/test_client_legacy.py - Update all imports to use new path - Clean up root directory (only
+  entry point files remain)
+
+
 ## v0.6.2 (2026-01-30)
 
 ### Bug Fixes
@@ -11,6 +59,11 @@
 - DNS rebinding protection now disabled by default (allows any host) - Set
   MCP_ENABLE_HOST_CHECK=true to enable host validation - When enabled, MCP_ALLOWED_HOSTS configures
   allowed domains - Simplifies deployment behind reverse proxies (Traefik, Caddy, nginx)
+
+### Chores
+
+- **release**: 0.6.2
+  ([`dfb9909`](https://github.com/ardzz/perplexity-scrape/commit/dfb9909ff0b272516b45a0a20601bcba1265fcab))
 
 
 ## v0.6.1 (2026-01-30)

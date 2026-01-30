@@ -1,7 +1,20 @@
 # CHANGELOG
 
 
+## v0.3.0 (2026-01-30)
+
+### Features
+
+- Add streamable-http transport with auth middleware for MCP server
+  ([`5d22337`](https://github.com/ardzz/perplexity-mcp/commit/5d22337de598c7e12258d0f1913cc4e7be135315))
+
+
 ## v0.2.0 (2026-01-30)
+
+### Chores
+
+- **release**: 0.2.0
+  ([`031ca1d`](https://github.com/ardzz/perplexity-mcp/commit/031ca1d98e16eb94876de0fba8ad7b69d02742bb))
 
 ### Features
 

@@ -1,12 +1,29 @@
 # CHANGELOG
 
 
+## v0.6.2 (2026-01-30)
+
+### Bug Fixes
+
+- **mcp**: Disable host validation by default for proxy compatibility
+  ([`5604b10`](https://github.com/ardzz/perplexity-scrape/commit/5604b10481ecfa6c457ddf86e4b175bc78a4a1d9))
+
+- DNS rebinding protection now disabled by default (allows any host) - Set
+  MCP_ENABLE_HOST_CHECK=true to enable host validation - When enabled, MCP_ALLOWED_HOSTS configures
+  allowed domains - Simplifies deployment behind reverse proxies (Traefik, Caddy, nginx)
+
+
 ## v0.6.1 (2026-01-30)
 
 ### Bug Fixes
 
 - **mcp**: Add TransportSecuritySettings to allow external hosts via MCP_ALLOWED_HOSTS env var
   ([`fd7f586`](https://github.com/ardzz/perplexity-scrape/commit/fd7f58625870a36b0beac4693c92213ffd62ece4))
+
+### Chores
+
+- **release**: 0.6.1
+  ([`1c0afb2`](https://github.com/ardzz/perplexity-scrape/commit/1c0afb2c313601bb524294ea54c8d86843009eda))
 
 
 ## v0.6.0 (2026-01-30)

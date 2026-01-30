@@ -74,7 +74,7 @@ async def startup_event():
 
 if __name__ == "__main__":
     uvicorn.run(
-        "rest_server:app",
+        "rest_api_service:app",
         host=config.rest_api_host,
         port=config.rest_api_port,
         reload=True,

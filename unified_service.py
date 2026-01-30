@@ -32,8 +32,8 @@ from src.api.routes import router
 from src.api.error_handlers import register_error_handlers
 from src.core.mcp_auth import MCPAuthMiddleware
 
-# Import the MCP server instance from server.py
-from server import mcp
+# Import the MCP server instance from mcp_service.py
+from mcp_service import mcp
 
 # Configure logging
 logging.basicConfig(
@@ -146,7 +146,7 @@ app.routes.append(Route("/mcp/", endpoint=mcp_endpoint_with_auth))
 
 if __name__ == "__main__":
     uvicorn.run(
-        "combined_server:app",
+        "unified_service:app",
         host=config.rest_api_host,
         port=config.rest_api_port,
         reload=True,

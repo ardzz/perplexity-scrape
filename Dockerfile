@@ -41,9 +41,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /app
 
 # Copy application code
-COPY --chown=appuser:appuser combined_server.py .
-COPY --chown=appuser:appuser rest_server.py .
-COPY --chown=appuser:appuser server.py .
+COPY --chown=appuser:appuser unified_service.py .
+COPY --chown=appuser:appuser rest_api_service.py .
+COPY --chown=appuser:appuser mcp_service.py .
 COPY --chown=appuser:appuser perplexity_client.py .
 COPY --chown=appuser:appuser src/ ./src/
 
@@ -58,4 +58,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8045/ || exit 1
 
 # Run the combined server (REST API + MCP on same port)
-CMD ["python", "-m", "uvicorn", "combined_server:app", "--host", "0.0.0.0", "--port", "8045"]
+CMD ["python", "-m", "uvicorn", "unified_service:app", "--host", "0.0.0.0", "--port", "8045"]

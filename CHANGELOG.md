@@ -1,7 +1,23 @@
 # CHANGELOG
 
 
+## v0.5.0 (2026-01-30)
+
+### Features
+
+- **docker**: Switch to combined server for REST API + MCP support
+  ([`17187ad`](https://github.com/ardzz/perplexity-scrape/commit/17187ad4aa277bbe9f51c2180565ebc09d4fa206))
+
+- Include combined_server.py and server.py in Docker image - Change CMD to run combined_server
+  instead of rest_server - Now serves both REST API (/v1/*) and MCP (/mcp) on port 8045
+
+
 ## v0.4.0 (2026-01-30)
+
+### Chores
+
+- **release**: 0.4.0
+  ([`1e356ba`](https://github.com/ardzz/perplexity-scrape/commit/1e356bab7d784727776108e027b6b18209cb383d))
 
 ### Features
 

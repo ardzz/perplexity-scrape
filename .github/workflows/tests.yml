@@ -29,7 +29,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          pytest tests/ --ignore=tests/integration/ -v --cov=src --cov-report=xml --cov-report=term-missing
+          pytest tests/ --ignore=tests/integration/ -v --cov=src --cov-report=xml --cov-report=term-missing --junitxml=junit.xml -o junit_family=legacy
         env:
           # Mock credentials for tests (not used in unit tests, but needed for imports)
           PERPLEXITY_SESSION_TOKEN: "test-token"
@@ -44,6 +44,12 @@ jobs:
           file: ./coverage.xml
           fail_ci_if_error: false
         continue-on-error: true
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   integration-test:
     runs-on: ubuntu-latest

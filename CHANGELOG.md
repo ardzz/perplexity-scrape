@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.1.1 (2026-01-30)
+
+### Bug Fixes
+
+- **docker**: Remove non-tracked perplexity_research.py from COPY
+  ([`9538264`](https://github.com/ardzz/perplexity-mcp/commit/95382643d98fb42d6b07993a0bb9b8d77ab4732e))
+
+File is gitignored and not needed by REST API server
+
+
 ## v0.1.0 (2026-01-30)
 
 ### Bug Fixes
@@ -56,6 +66,9 @@ Exclude local dev tools from version control:
 
 - Ignore perplexity_research.py reference file
   ([`50ac29b`](https://github.com/ardzz/perplexity-mcp/commit/50ac29b16eb8c938bed46cb850b14c7ec98d7236))
+
+- **release**: 0.1.0
+  ([`ae12bed`](https://github.com/ardzz/perplexity-mcp/commit/ae12bedaf7bcfc68d3fec404ad2d49de351c22bf))
 
 ### Documentation
 

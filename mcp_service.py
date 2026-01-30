@@ -7,6 +7,7 @@ An MCP server that provides Perplexity AI search capabilities.
 import os
 from typing import Optional
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 from perplexity_client import PerplexityClient
 
 
@@ -100,7 +101,37 @@ Include working code examples with proper imports and error handling.""",
 VALID_CATEGORIES = set(PROGRAMMING_RESEARCH_PROMPTS.keys())
 
 
-mcp = FastMCP("Perplexity Search")
+def get_allowed_hosts() -> list[str]:
+    """Get allowed hosts for MCP transport security.
+
+    Includes localhost defaults plus any hosts from MCP_ALLOWED_HOSTS env var.
+    Use MCP_ALLOWED_HOSTS to add external domains (comma-separated).
+    Example: MCP_ALLOWED_HOSTS=api.example.com,*.sslip.io
+    """
+    default_hosts = [
+        "localhost",
+        "localhost:*",
+        "127.0.0.1",
+        "127.0.0.1:*",
+        "0.0.0.0",
+        "0.0.0.0:*",
+    ]
+
+    # Add custom hosts from environment variable
+    custom_hosts = os.environ.get("MCP_ALLOWED_HOSTS", "")
+    if custom_hosts:
+        default_hosts.extend([h.strip() for h in custom_hosts.split(",") if h.strip()])
+
+    return default_hosts
+
+
+# Configure transport security with allowed hosts
+transport_security = TransportSecuritySettings(
+    enable_dns_rebinding_protection=True,
+    allowed_hosts=get_allowed_hosts(),
+)
+
+mcp = FastMCP("Perplexity Search", transport_security=transport_security)
 _client: Optional[PerplexityClient] = None
 
 

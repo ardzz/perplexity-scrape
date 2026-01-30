@@ -332,9 +332,19 @@ if __name__ == "__main__":
     from src.config import config
 
     if config.mcp_transport_mode == "http":
-        # Run as HTTP server (REST API for MCP)
-        mcp.run(
-            transport="sse",
+        # Run as HTTP server with streamable-http transport
+        import uvicorn
+        from src.core.mcp_auth import MCPAuthMiddleware
+
+        # Get the Starlette app from FastMCP
+        app = mcp.streamable_http_app()
+
+        # Add authentication middleware
+        app.add_middleware(MCPAuthMiddleware)
+
+        # Run with uvicorn
+        uvicorn.run(
+            app,
             host=config.mcp_http_host,
             port=config.mcp_http_port,
         )

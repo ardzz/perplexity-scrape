@@ -44,7 +44,35 @@ This runs the MCP server in stdio mode, suitable for integration with MCP client
 MCP_TRANSPORT_MODE=http python server.py
 ```
 
-This runs the MCP server as an HTTP/SSE server, suitable for remote access. Default: `http://127.0.0.1:8000`
+This runs the MCP server with streamable-http transport at `http://127.0.0.1:8000/mcp`, suitable for remote access.
+
+#### MCP HTTP Examples
+
+**List available tools:**
+```bash
+curl -X POST http://localhost:8000/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+```
+
+**Call a tool:**
+```bash
+curl -X POST http://localhost:8000/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "perplexity_quick_search",
+      "arguments": {"query": "What is MCP?"}
+    }
+  }'
+```
+
+> **Note**: The `X-API-Key` header is only required when `API_KEY` is set in your `.env` file.
 
 ### MCP Configuration
 
@@ -62,7 +90,7 @@ Add to your MCP config (for stdio mode):
 }
 ```
 
-For HTTP mode, configure your MCP client to connect to the SSE endpoint at `http://127.0.0.1:8000/sse`.
+For HTTP mode, configure your MCP client to connect to `http://127.0.0.1:8000/mcp`.
 
 ### Available MCP Tools
 

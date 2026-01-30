@@ -133,7 +133,7 @@ class TestMCPHTTPAppCreation:
 
     def test_streamable_http_app_returns_starlette(self):
         """streamable_http_app() should return a Starlette application."""
-        from server import mcp
+        from mcp_service import mcp
         from starlette.applications import Starlette
 
         app = mcp.streamable_http_app()
@@ -142,7 +142,7 @@ class TestMCPHTTPAppCreation:
 
     def test_streamable_http_app_has_mcp_route(self):
         """The app should have the /mcp route."""
-        from server import mcp
+        from mcp_service import mcp
 
         app = mcp.streamable_http_app()
         route_paths = [route.path for route in app.routes]
@@ -151,7 +151,7 @@ class TestMCPHTTPAppCreation:
 
     def test_middleware_can_be_added(self):
         """Middleware should be addable to the app."""
-        from server import mcp
+        from mcp_service import mcp
         from src.core.mcp_auth import MCPAuthMiddleware
 
         app = mcp.streamable_http_app()

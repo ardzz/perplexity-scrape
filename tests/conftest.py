@@ -34,7 +34,7 @@ def test_api_key():
 def client():
     """Create a test client for FastAPI app."""
     from httpx import AsyncClient, ASGITransport
-    from rest_server import app
+    from rest_api_service import app
 
     transport = ASGITransport(app=app)
     return AsyncClient(transport=transport, base_url="http://test")

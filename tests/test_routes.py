@@ -28,7 +28,7 @@ async def app_with_auth():
 
         importlib.reload(src.config)
 
-        from rest_server import app
+        from rest_api_service import app
 
         yield app
 
@@ -42,7 +42,7 @@ async def app_without_auth():
 
         importlib.reload(src.config)
 
-        from rest_server import app
+        from rest_api_service import app
 
         yield app
 
@@ -53,7 +53,7 @@ class TestHealthEndpoint:
     @pytest.mark.asyncio
     async def test_health_returns_ok(self):
         """Health endpoint should return ok status."""
-        from rest_server import app
+        from rest_api_service import app
 
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
@@ -75,7 +75,7 @@ class TestModelsEndpointAuth:
             with patch("src.core.security.config") as mock_config:
                 mock_config.auth_enabled = False
 
-                from rest_server import app
+                from rest_api_service import app
 
                 async with AsyncClient(
                     transport=ASGITransport(app=app), base_url="http://test"
@@ -94,7 +94,7 @@ class TestModelsEndpointAuth:
             mock_config.auth_enabled = True
             mock_config.api_key = test_key
 
-            from rest_server import app
+            from rest_api_service import app
 
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
@@ -112,7 +112,7 @@ class TestModelsEndpointAuth:
             mock_config.auth_enabled = True
             mock_config.api_key = "valid-key"
 
-            from rest_server import app
+            from rest_api_service import app
 
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
@@ -128,7 +128,7 @@ class TestModelsEndpointAuth:
             mock_config.auth_enabled = True
             mock_config.api_key = "valid-key"
 
-            from rest_server import app
+            from rest_api_service import app
 
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
@@ -150,7 +150,7 @@ class TestChatCompletionsEndpointAuth:
             mock_config.auth_enabled = True
             mock_config.api_key = "valid-key"
 
-            from rest_server import app
+            from rest_api_service import app
 
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
@@ -172,7 +172,7 @@ class TestChatCompletionsEndpointAuth:
             mock_config.auth_enabled = True
             mock_config.api_key = "valid-key"
 
-            from rest_server import app
+            from rest_api_service import app
 
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"

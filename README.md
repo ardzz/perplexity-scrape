@@ -1,5 +1,7 @@
 # Perplexity Scrape
 
+[![Tests](https://img.shields.io/github/actions/workflow/status/ardzz/perplexity-scrape/tests.yml?branch=master&style=flat-square&label=tests)](https://github.com/ardzz/perplexity-scrape/actions/workflows/tests.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/ardzz/perplexity-scrape?style=flat-square&logo=codecov)](https://codecov.io/gh/ardzz/perplexity-scrape)
 [![GitHub Stars](https://img.shields.io/github/stars/ardzz/perplexity-scrape?style=flat-square)](https://github.com/ardzz/perplexity-scrape/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/ardzz/perplexity-scrape?style=flat-square)](https://github.com/ardzz/perplexity-scrape/network/members)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)

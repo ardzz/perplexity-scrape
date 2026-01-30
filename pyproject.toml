@@ -14,7 +14,6 @@ keywords = ["perplexity", "mcp", "openai", "api", "ai"]
 version_toml = ["pyproject.toml:project.version"]
 branch = "master"
 upload_to_pypi = false
-build_command = false
 commit_message = "chore(release): {version}"
 tag_format = "v{version}"
 

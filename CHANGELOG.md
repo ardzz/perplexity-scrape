@@ -1,7 +1,20 @@
 # CHANGELOG
 
 
+## v0.6.1 (2026-01-30)
+
+### Bug Fixes
+
+- **mcp**: Add TransportSecuritySettings to allow external hosts via MCP_ALLOWED_HOSTS env var
+  ([`fd7f586`](https://github.com/ardzz/perplexity-scrape/commit/fd7f58625870a36b0beac4693c92213ffd62ece4))
+
+
 ## v0.6.0 (2026-01-30)
+
+### Chores
+
+- **release**: 0.6.0
+  ([`0f77914`](https://github.com/ardzz/perplexity-scrape/commit/0f779149a77826653488c3f95e590ed22461089f))
 
 ### Features
 

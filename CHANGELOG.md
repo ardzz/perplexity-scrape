@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.6.5 (2026-01-30)
+
+### Bug Fixes
+
+- Correct YAML indentation in tests.yml (line 40)
+  ([`bf19dc6`](https://github.com/ardzz/perplexity-scrape/commit/bf19dc6e4b248681c19aca4de86e5ef535dd687a))
+
+
 ## v0.6.4 (2026-01-30)
 
 ### Bug Fixes
@@ -11,6 +19,11 @@
 - Remove obsolete perplexity_client.py from Dockerfiles (moved to src/core/) - Replace deprecated
   on_event with lifespan in rest_api_service.py - Fix test_client_legacy.py to use assert instead of
   return - Add CODECOV_TOKEN and upgrade codecov-action to v5
+
+### Chores
+
+- **release**: 0.6.4
+  ([`f1d2498`](https://github.com/ardzz/perplexity-scrape/commit/f1d249867c4e74ad1c962a4e889bebf8397d33b9))
 
 
 ## v0.6.3 (2026-01-30)

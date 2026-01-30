@@ -1,6 +1,18 @@
 # CHANGELOG
 
 
+## v0.6.4 (2026-01-30)
+
+### Bug Fixes
+
+- Resolve CI warnings and Docker build errors
+  ([`d631c3b`](https://github.com/ardzz/perplexity-scrape/commit/d631c3b610dba4f41d0fc104fc0ea0a98eafed8a))
+
+- Remove obsolete perplexity_client.py from Dockerfiles (moved to src/core/) - Replace deprecated
+  on_event with lifespan in rest_api_service.py - Fix test_client_legacy.py to use assert instead of
+  return - Add CODECOV_TOKEN and upgrade codecov-action to v5
+
+
 ## v0.6.3 (2026-01-30)
 
 ### Bug Fixes
@@ -10,6 +22,11 @@
 
 - Fix rest_server -> rest_api_service imports - Fix server -> mcp_service imports - All 27 existing
   tests now pass
+
+### Chores
+
+- **release**: 0.6.3
+  ([`2211f79`](https://github.com/ardzz/perplexity-scrape/commit/2211f79781bed3a70beb655b7077d85c5ba9ca14))
 
 ### Documentation
 

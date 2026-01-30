@@ -33,7 +33,7 @@ PERPLEXITY_SESSION_ID=your_session_id
 ### Run MCP Server (stdio mode - default)
 
 ```bash
-python server.py
+python mcp_service.py
 ```
 
 This runs the MCP server in stdio mode, suitable for integration with MCP clients like Claude Desktop.
@@ -41,29 +41,77 @@ This runs the MCP server in stdio mode, suitable for integration with MCP client
 ### Run MCP Server (HTTP mode)
 
 ```bash
-MCP_TRANSPORT_MODE=http python server.py
+MCP_TRANSPORT_MODE=http python mcp_service.py
 ```
 
 This runs the MCP server with streamable-http transport at `http://127.0.0.1:8000/mcp`, suitable for remote access.
 
-#### MCP HTTP Examples
+### MCP Client Configuration
+
+#### Claude Desktop (stdio mode)
+
+```json
+{
+  "mcpServers": {
+    "perplexity": {
+      "command": "python",
+      "args": ["/path/to/perplexity-mcp/mcp_service.py"],
+      "env": {}
+    }
+  }
+}
+```
+
+#### OpenCode (remote HTTP mode)
+
+```json
+{
+  "perplexity": {
+    "type": "remote",
+    "url": "https://your-server.com/mcp",
+    "enabled": true,
+    "headers": {
+      "X-API-Key": "your-api-key"
+    }
+  }
+}
+```
+
+#### Generic MCP Client (HTTP mode)
+
+Connect to `http://127.0.0.1:8000/mcp` (local) or your deployed URL.
+
+### MCP HTTP Examples
+
+**Initialize session:**
+```bash
+curl -X POST http://localhost:8000/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "X-API-Key: your-api-key" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
+```
 
 **List available tools:**
 ```bash
 curl -X POST http://localhost:8000/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -H "X-API-Key: your-api-key" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+  -H "Mcp-Session-Id: YOUR_SESSION_ID" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
 ```
 
 **Call a tool:**
 ```bash
 curl -X POST http://localhost:8000/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -H "X-API-Key: your-api-key" \
+  -H "Mcp-Session-Id: YOUR_SESSION_ID" \
   -d '{
     "jsonrpc": "2.0",
-    "id": 2,
+    "id": 3,
     "method": "tools/call",
     "params": {
       "name": "perplexity_quick_search",
@@ -72,25 +120,7 @@ curl -X POST http://localhost:8000/mcp \
   }'
 ```
 
-> **Note**: The `X-API-Key` header is only required when `API_KEY` is set in your `.env` file.
-
-### MCP Configuration
-
-Add to your MCP config (for stdio mode):
-
-```json
-{
-  "mcpServers": {
-    "perplexity": {
-      "command": "python",
-      "args": ["/path/to/perplexity-mcp/server.py"],
-      "env": {}
-    }
-  }
-}
-```
-
-For HTTP mode, configure your MCP client to connect to `http://127.0.0.1:8000/mcp`.
+> **Note**: The `X-API-Key` header is only required when `API_KEY` is set in your `.env` file. The `Mcp-Session-Id` header is returned in the initialize response and must be included in subsequent requests.
 
 ### Available MCP Tools
 
@@ -130,7 +160,7 @@ perplexity_research(topic="FastAPI authentication", category="implementation")
 ### Run REST Server
 
 ```bash
-python rest_server.py
+python rest_api_service.py
 ```
 
 Default: `http://127.0.0.1:8045`
@@ -183,7 +213,7 @@ print(response.choices[0].message.content)
 For convenience, you can run both the REST API and MCP HTTP server on the same port using the combined server:
 
 ```bash
-python combined_server.py
+python unified_service.py
 ```
 
 This serves:
@@ -211,11 +241,11 @@ curl -X POST http://localhost:8045/mcp \
 curl -X POST http://localhost:8045/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
-  -H "mcp-session-id: YOUR_SESSION_ID" \
+  -H "Mcp-Session-Id: YOUR_SESSION_ID" \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
 ```
 
-> **Note**: The `mcp-session-id` header is returned in the initialize response and must be included in subsequent requests.
+> **Note**: The `Mcp-Session-Id` header is returned in the initialize response and must be included in subsequent requests.
 
 ---
 
@@ -333,6 +363,8 @@ API_KEY=
 | `MCP_TRANSPORT_MODE` | `stdio` | MCP transport mode (`stdio` or `http`) |
 | `MCP_HTTP_HOST` | `127.0.0.1` | MCP HTTP server host (when mode=http) |
 | `MCP_HTTP_PORT` | `8000` | MCP HTTP server port (when mode=http) |
+| `MCP_ENABLE_HOST_CHECK` | `false` | Enable DNS rebinding protection for MCP |
+| `MCP_ALLOWED_HOSTS` | *(empty)* | Allowed hosts when host check enabled (comma-separated) |
 
 ---
 

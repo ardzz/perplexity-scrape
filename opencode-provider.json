@@ -1,0 +1,161 @@
+{
+  "perplexity-scrape": {
+    "npm": "@ai-sdk/openai-compatible",
+    "name": "Perplexity Scrape",
+    "options": {
+      "baseURL": "http://127.0.0.1:8045/v1"
+    },
+    "models": {
+      "sonar": {
+        "name": "Sonar (Experimental)",
+        "limit": {
+          "context": 128000,
+          "output": 16384
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "claude45sonnet": {
+        "name": "Claude 4.5 Sonnet",
+        "limit": {
+          "context": 200000,
+          "output": 64000
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "claude45sonnetthinking": {
+        "name": "Claude 4.5 Sonnet + Reasoning",
+        "thinking": true,
+        "limit": {
+          "context": 200000,
+          "output": 64000
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "claude45opus": {
+        "name": "Claude 4.5 Opus",
+        "limit": {
+          "context": 200000,
+          "output": 64000
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "claude45opusthinking": {
+        "name": "Claude 4.5 Opus + Reasoning",
+        "thinking": true,
+        "limit": {
+          "context": 200000,
+          "output": 64000
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "gemini30flash": {
+        "name": "Gemini 3 Flash",
+        "limit": {
+          "context": 1048576,
+          "output": 65536
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "gemini30flash_high": {
+        "name": "Gemini 3 Flash + Reasoning",
+        "thinking": true,
+        "limit": {
+          "context": 1048576,
+          "output": 65536
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "gemini30pro": {
+        "name": "Gemini 3 Pro + Reasoning",
+        "thinking": true,
+        "limit": {
+          "context": 1048576,
+          "output": 65535
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "gpt52": {
+        "name": "GPT-5.2",
+        "limit": {
+          "context": 128000,
+          "output": 32768
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "gpt52_thinking": {
+        "name": "GPT-5.2 + Reasoning",
+        "thinking": true,
+        "limit": {
+          "context": 128000,
+          "output": 32768
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "grok41nonreasoning": {
+        "name": "Grok 4.1",
+        "limit": {
+          "context": 128000,
+          "output": 32768
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "grok41reasoning": {
+        "name": "Grok 4.1 + Reasoning",
+        "thinking": true,
+        "limit": {
+          "context": 128000,
+          "output": 32768
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "kimik25thinking": {
+        "name": "Kimi K2.5 Thinking",
+        "thinking": true,
+        "limit": {
+          "context": 128000,
+          "output": 32768
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      }
+    }
+  }
+}

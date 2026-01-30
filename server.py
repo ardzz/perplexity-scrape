@@ -148,36 +148,46 @@ def perplexity_ask(
 
 
 @mcp.tool()
-def perplexity_quick_search(query: str) -> str:
+def perplexity_quick_search(
+    query: str, model_preference: str = "claude45sonnetthinking"
+) -> str:
     """
     Quick web search using Perplexity AI. Returns just the answer text.
 
     Args:
         query: The search query
+        model_preference: AI model to use (default: claude45sonnetthinking)
 
     Returns:
         The response text from Perplexity
     """
     client = get_client()
-    response = client.ask(query=query, mode="copilot")
+    response = client.ask(
+        query=query, mode="copilot", model_preference=model_preference
+    )
     return response.text
 
 
 @mcp.tool()
-def perplexity_academic_search(query: str) -> dict:
+def perplexity_academic_search(
+    query: str, model_preference: str = "claude45sonnetthinking"
+) -> dict:
     """
     Search academic sources using Perplexity AI.
 
     Args:
-        query: The academic/research query
+        topic: The topic to research
+        category: Context category (e.g., "machine learning", "mathematics", "physics")
+        model_preference: AI model to use (default: claude45sonnetthinking)
 
     Returns:
-        Dictionary with scholarly answer and citations
+        Dictionary with research findings and citations
     """
     client = get_client()
     response = client.ask(
         query=query,
         mode="copilot",
+        model_preference=model_preference,
         search_focus="academic",
         sources=["scholar"],
     )
@@ -190,12 +200,15 @@ def perplexity_academic_search(query: str) -> dict:
 
 
 @mcp.tool()
-def perplexity_comprehensive_search(query: str) -> dict:
+def perplexity_comprehensive_search(
+    query: str, model_preference: str = "claude45sonnetthinking"
+) -> dict:
     """
     Search both web and academic sources using Perplexity AI.
 
     Args:
         query: The search query
+        model_preference: AI model to use (default: claude45sonnetthinking)
 
     Returns:
         Dictionary with comprehensive answer combining web and scholarly sources
@@ -204,6 +217,7 @@ def perplexity_comprehensive_search(query: str) -> dict:
     response = client.ask(
         query=query,
         mode="copilot",
+        model_preference=model_preference,
         search_focus="internet",
         sources=["web", "scholar"],
     )
@@ -216,7 +230,11 @@ def perplexity_comprehensive_search(query: str) -> dict:
 
 
 @mcp.tool()
-def perplexity_research(topic: str, category: str = "general") -> dict:
+def perplexity_research(
+    topic: str,
+    category: str = "general",
+    model_preference: str = "claude45sonnetthinking",
+) -> dict:
     """
     Research a programming topic using Perplexity AI with category-specific prompts.
 
@@ -232,6 +250,7 @@ def perplexity_research(topic: str, category: str = "general") -> dict:
             - "debugging": Troubleshooting and debugging approaches
             - "comparison": Technical comparisons between options
             - "general": General programming-focused research (default)
+        model_preference: AI model to use (default: claude45sonnetthinking)
 
     Returns:
         Dictionary with research findings, code examples, and citations
@@ -249,7 +268,7 @@ def perplexity_research(topic: str, category: str = "general") -> dict:
     response = client.ask(
         query=research_prompt,
         mode="copilot",
-        model_preference="pplx_alpha",  # Fast research model
+        model_preference=model_preference,
         search_focus="internet",
         sources=["web", "scholar"],
     )
@@ -262,7 +281,11 @@ def perplexity_research(topic: str, category: str = "general") -> dict:
 
 
 @mcp.tool()
-def perplexity_general_research(topic: str, category: str = "general") -> dict:
+def perplexity_general_research(
+    topic: str,
+    category: str = "general",
+    model_preference: str = "claude45sonnetthinking",
+) -> dict:
     """
     Research a topic using Perplexity AI with a generic/academic-focused prompt.
 
@@ -273,6 +296,7 @@ def perplexity_general_research(topic: str, category: str = "general") -> dict:
     Args:
         topic: The topic to research
         category: Context category (e.g., "machine learning", "mathematics", "physics")
+        model_preference: AI model to use (default: claude45sonnetthinking)
 
     Returns:
         Dictionary with research findings and citations
@@ -292,7 +316,7 @@ Use credible sources and cite where possible."""
     response = client.ask(
         query=research_prompt,
         mode="copilot",
-        model_preference="pplx_alpha",  # Fast research model
+        model_preference=model_preference,
         search_focus="internet",
         sources=["web", "scholar"],
     )

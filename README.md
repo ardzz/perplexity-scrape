@@ -56,11 +56,13 @@ Add to your MCP config:
 | Tool | Description |
 |------|-------------|
 | `perplexity_ask` | Full search with mode, model, and focus options |
-| `perplexity_quick_search` | Quick search returning just the answer text |
-| `perplexity_academic_search` | Search academic/scholarly sources |
-| `perplexity_comprehensive_search` | Search both web and academic sources |
-| `perplexity_research` | Programming-focused research with category-specific prompts |
-| `perplexity_general_research` | General/academic research on any topic |
+| `perplexity_quick_search` | Quick search with model selection |
+| `perplexity_academic_search` | Search academic sources with model selection |
+| `perplexity_comprehensive_search` | Search web + academic with model selection |
+| `perplexity_research` | Programming-focused research with model selection |
+| `perplexity_general_research` | General/academic research with model selection |
+
+> **Model Selection**: All tools support the `model_preference` parameter. Use any model ID from the [Available Models](#available-models) section. Default: `claude45sonnetthinking`.
 
 ### Research Categories
 
@@ -173,7 +175,7 @@ print(response.choices[0].message.content)
 ### Kimi (Moonshot)
 | Model ID | Description |
 |----------|-------------|
-| `kimi-k2-thinking` | Kimi K2 with Reasoning |
+| `kimi-k2.5-thinking` | Kimi K2.5 Thinking |
 
 ---
 

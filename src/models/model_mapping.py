@@ -172,17 +172,17 @@ MODEL_REGISTRY: dict[str, ModelConfig] = {
     # =========================================================================
     # Kimi Models
     # =========================================================================
-    "kimi-k2": ModelConfig(
-        perplexity_model="kimik2thinking",
-        description="Kimi K2 Thinking",
+    "kimi-k2.5": ModelConfig(
+        perplexity_model="kimik25thinking",
+        description="Kimi K2.5 Thinking",
     ),
-    "kimi-k2-thinking": ModelConfig(
-        perplexity_model="kimik2thinking",
-        description="Kimi K2 Thinking",
+    "kimi-k2.5-thinking": ModelConfig(
+        perplexity_model="kimik25thinking",
+        description="Kimi K2.5 Thinking",
     ),
-    "kimik2thinking": ModelConfig(
-        perplexity_model="kimik2thinking",
-        description="Kimi K2 Thinking",
+    "kimik25thinking": ModelConfig(
+        perplexity_model="kimik25thinking",
+        description="Kimi K2.5 Thinking",
     ),
 }
 

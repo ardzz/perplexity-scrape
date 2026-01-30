@@ -1,0 +1,69 @@
+# Git
+.git/
+.gitignore
+
+# Environment and secrets (CRITICAL)
+.env
+.env.*
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+test_client.py
+
+# Linting/Type checking
+.mypy_cache/
+.ruff_cache/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+*.egg
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.tmp
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Development tooling
+.sisyphus/
+.opencode/
+.specify/
+specs/
+
+# Documentation (not needed at runtime)
+*.md
+LICENSE
+
+# Docker files (self-reference)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# GitHub (not needed in image)
+.github/
+
+# Logs and temp
+*.log
+
+# Project-specific dev files
+sse_with_chart.txt

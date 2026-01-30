@@ -178,6 +178,47 @@ print(response.choices[0].message.content)
 
 ---
 
+## Combined Server (REST API + MCP)
+
+For convenience, you can run both the REST API and MCP HTTP server on the same port using the combined server:
+
+```bash
+python combined_server.py
+```
+
+This serves:
+- **REST API** at `http://127.0.0.1:8045/v1/...`
+- **MCP HTTP** at `http://127.0.0.1:8045/mcp`
+- **Documentation** at `http://127.0.0.1:8045/docs`
+
+### Combined Server Examples
+
+**REST API (same as standalone):**
+```bash
+curl http://localhost:8045/v1/models
+```
+
+**MCP Initialize:**
+```bash
+curl -X POST http://localhost:8045/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
+```
+
+**MCP List Tools:**
+```bash
+curl -X POST http://localhost:8045/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "mcp-session-id: YOUR_SESSION_ID" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+```
+
+> **Note**: The `mcp-session-id` header is returned in the initialize response and must be included in subsequent requests.
+
+---
+
 ## Authentication
 
 API key authentication is **optional** and disabled by default. When enabled, it protects the `/v1/chat/completions` and `/v1/models` endpoints.

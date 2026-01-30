@@ -7,6 +7,7 @@ An MCP server and OpenAI-compatible REST API that provides Perplexity AI search 
 - **MCP Server**: 6 specialized search tools for AI assistants
 - **REST API**: OpenAI-compatible `/v1/chat/completions` endpoint
 - **Multi-Model**: Access Claude, GPT, Gemini, Grok, Kimi through Perplexity
+- **Optional Authentication**: Protect endpoints with API key authentication
 
 ## Setup
 
@@ -29,15 +30,25 @@ PERPLEXITY_SESSION_ID=your_session_id
 
 ## MCP Server
 
-### Run MCP Server
+### Run MCP Server (stdio mode - default)
 
 ```bash
 python server.py
 ```
 
+This runs the MCP server in stdio mode, suitable for integration with MCP clients like Claude Desktop.
+
+### Run MCP Server (HTTP mode)
+
+```bash
+MCP_TRANSPORT_MODE=http python server.py
+```
+
+This runs the MCP server as an HTTP/SSE server, suitable for remote access. Default: `http://127.0.0.1:8000`
+
 ### MCP Configuration
 
-Add to your MCP config:
+Add to your MCP config (for stdio mode):
 
 ```json
 {
@@ -50,6 +61,8 @@ Add to your MCP config:
   }
 }
 ```
+
+For HTTP mode, configure your MCP client to connect to the SSE endpoint at `http://127.0.0.1:8000/sse`.
 
 ### Available MCP Tools
 
@@ -123,7 +136,7 @@ from openai import OpenAI
 
 client = OpenAI(
     base_url="http://127.0.0.1:8045/v1",
-    api_key="not-needed"  # Authentication via Perplexity cookies
+    api_key="not-needed"  # Or your API_KEY if auth enabled
 )
 
 response = client.chat.completions.create(
@@ -133,6 +146,65 @@ response = client.chat.completions.create(
     ]
 )
 print(response.choices[0].message.content)
+```
+
+---
+
+## Authentication
+
+API key authentication is **optional** and disabled by default. When enabled, it protects the `/v1/chat/completions` and `/v1/models` endpoints.
+
+### Enable Authentication
+
+1. Generate a secure API key:
+```bash
+python scripts/generate_api_key.py
+```
+
+2. Add the key to your `.env` file:
+```env
+API_KEY=your-generated-key-here
+```
+
+3. Restart the server. All protected endpoints now require the `X-API-Key` header.
+
+### Using Authentication
+
+**cURL:**
+```bash
+curl -X POST http://127.0.0.1:8045/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{"model": "claude-4.5-sonnet", "messages": [{"role": "user", "content": "Hello"}]}'
+```
+
+**Python (OpenAI client):**
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://127.0.0.1:8045/v1",
+    api_key="your-api-key",  # Will be sent as Authorization header
+    default_headers={"X-API-Key": "your-api-key"}  # Required header
+)
+```
+
+**Python (httpx):**
+```python
+import httpx
+
+response = httpx.post(
+    "http://127.0.0.1:8045/v1/chat/completions",
+    headers={"X-API-Key": "your-api-key"},
+    json={"model": "claude-4.5-sonnet", "messages": [...]}
+)
+```
+
+### Disable Authentication
+
+Set `API_KEY` to empty or remove it from `.env`:
+```env
+API_KEY=
 ```
 
 ---
@@ -188,33 +260,10 @@ print(response.choices[0].message.content)
 | `DEFAULT_MODEL` | `claude45sonnetthinking` | Default model for requests |
 | `DEFAULT_MODE` | `copilot` | Search mode (copilot/search) |
 | `DEFAULT_SEARCH_FOCUS` | `internet` | Search focus (internet/academic) |
-
----
-
-## Architecture
-
-```
-perplexity-mcp/
-├── server.py              # MCP server entry point
-├── rest_server.py         # FastAPI REST server entry point
-├── perplexity_client.py   # Core Perplexity API client
-├── src/
-│   ├── api/
-│   │   ├── routes.py          # REST API endpoints
-│   │   ├── dependencies.py    # FastAPI dependencies
-│   │   └── error_handlers.py  # Error handling
-│   ├── models/
-│   │   ├── model_mapping.py   # OpenAI → Perplexity model mapping
-│   │   ├── openai_models.py   # OpenAI-compatible request/response models
-│   │   └── perplexity_models.py
-│   ├── services/
-│   │   ├── chat_completion_service.py
-│   │   ├── perplexity_adapter.py
-│   │   └── stream_formatter.py
-│   ├── config.py          # Configuration management
-│   └── utils/
-└── test_client.py         # Test client for wrapper
-```
+| `API_KEY` | *(empty)* | API key for authentication (empty = auth disabled) |
+| `MCP_TRANSPORT_MODE` | `stdio` | MCP transport mode (`stdio` or `http`) |
+| `MCP_HTTP_HOST` | `127.0.0.1` | MCP HTTP server host (when mode=http) |
+| `MCP_HTTP_PORT` | `8000` | MCP HTTP server port (when mode=http) |
 
 ---
 

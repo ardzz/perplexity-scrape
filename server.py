@@ -329,4 +329,15 @@ Use credible sources and cite where possible."""
 
 
 if __name__ == "__main__":
-    mcp.run()
+    from src.config import config
+
+    if config.mcp_transport_mode == "http":
+        # Run as HTTP server (REST API for MCP)
+        mcp.run(
+            transport="sse",
+            host=config.mcp_http_host,
+            port=config.mcp_http_port,
+        )
+    else:
+        # Default: Run as stdio server (for MCP clients like Claude Desktop)
+        mcp.run()

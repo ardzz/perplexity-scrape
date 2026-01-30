@@ -56,7 +56,9 @@ async def chat_completions(
 
 
 @router.get("/v1/models", response_model=ModelListResponse)
-async def list_models() -> ModelListResponse:
+async def list_models(
+    api_key: str = Depends(get_api_key),
+) -> ModelListResponse:
     """
     List available models.
 

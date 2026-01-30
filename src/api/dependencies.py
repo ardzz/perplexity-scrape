@@ -7,9 +7,10 @@ Provides shared dependencies for API routes.
 import logging
 from typing import Optional
 
-from fastapi import Depends, Header
+from fastapi import Depends
 
 from perplexity_client import PerplexityClient
+from src.core.security import verify_api_key
 
 logger = logging.getLogger(__name__)
 
@@ -57,29 +58,8 @@ def get_client() -> PerplexityClient:
     return get_perplexity_client()
 
 
-def get_api_key(
-    authorization: Optional[str] = Header(None, alias="Authorization"),
-) -> Optional[str]:
-    """
-    Extract API key from Authorization header.
-
-    The OpenAI format uses "Bearer <key>" format.
-    Currently this is a placeholder - no validation is performed.
-
-    Args:
-        authorization: The Authorization header value
-
-    Returns:
-        The extracted API key, or None if not provided.
-    """
-    if not authorization:
-        return None
-
-    # Extract token from "Bearer <token>" format
-    if authorization.startswith("Bearer "):
-        return authorization[7:]
-
-    return authorization
+# Re-export verify_api_key as get_api_key for backward compatibility
+get_api_key = verify_api_key
 
 
 # ============================================================================

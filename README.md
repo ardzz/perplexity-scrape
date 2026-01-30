@@ -62,6 +62,19 @@ This runs the MCP server with streamable-http transport at `http://127.0.0.1:800
 }
 ```
 
+#### OpenCode (stdio local mode)
+
+```json
+{
+  "perplexity": {
+    "type": "local",
+    "command": "python",
+    "args": ["/path/to/perplexity-mcp/mcp_service.py"],
+    "enabled": true
+  }
+}
+```
+
 #### OpenCode (remote HTTP mode)
 
 ```json

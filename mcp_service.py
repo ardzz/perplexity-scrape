@@ -8,7 +8,7 @@ import os
 from typing import Optional
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
-from perplexity_client import PerplexityClient
+from src.core.perplexity_client import PerplexityClient
 
 
 # Programming-focused research prompt templates

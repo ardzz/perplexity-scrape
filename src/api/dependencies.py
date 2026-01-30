@@ -9,7 +9,7 @@ from typing import Optional
 
 from fastapi import Depends
 
-from perplexity_client import PerplexityClient
+from src.core.perplexity_client import PerplexityClient
 from src.core.security import verify_api_key
 
 logger = logging.getLogger(__name__)

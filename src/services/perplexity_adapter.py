@@ -7,7 +7,7 @@ Adapts Perplexity's API to the OpenAI chat completions format.
 import logging
 from typing import Generator, Optional
 
-from perplexity_client import PerplexityClient
+from src.core.perplexity_client import PerplexityClient
 from src.models.openai_models import ChatMessage, MessageRole
 from src.models.model_mapping import get_model_config, ModelConfig
 from src.services.chunk_extractor import ChunkExtractor

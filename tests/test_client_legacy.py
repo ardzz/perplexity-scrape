@@ -3,7 +3,7 @@ Test script for Perplexity API Client.
 """
 
 import sys
-from perplexity_client import PerplexityClient, PerplexityResponse
+from src.core.perplexity_client import PerplexityClient, PerplexityResponse
 
 
 def test_basic_query():
@@ -11,25 +11,25 @@ def test_basic_query():
     print("=" * 60)
     print("Testing Perplexity API Client")
     print("=" * 60)
-    
+
     try:
         client = PerplexityClient()
         print("✓ Client initialized successfully")
     except ValueError as e:
         print(f"✗ Failed to initialize client: {e}")
         return False
-    
+
     query = "What is the capital of France?"
     print(f"\nQuery: {query}")
     print("-" * 60)
-    
+
     try:
         print("\nStreaming response...")
         event_count = 0
-        
+
         for event in client.ask_stream(query):
             event_count += 1
-            
+
             # Print progress indicators
             if "status" in event:
                 print(f"  Status: {event.get('status')}")
@@ -37,29 +37,30 @@ def test_basic_query():
                 print(f"  Text chunk received ({len(event['text'])} chars)")
             elif "blocks" in event:
                 print(f"  Blocks received: {len(event['blocks'])} blocks")
-        
+
         print(f"\n✓ Received {event_count} SSE events")
-        
+
     except Exception as e:
         print(f"\n✗ Streaming failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
-    
+
     # Test full response
     print("\n" + "-" * 60)
     print("Testing full response...")
-    
+
     try:
         response = client.ask(query)
-        
+
         print(f"\n✓ Response received:")
         print(f"  - Text length: {len(response.text)} chars")
         print(f"  - Citations: {len(response.citations)}")
         print(f"  - Media items: {len(response.media_items)}")
         print(f"  - Related queries: {len(response.related_queries)}")
         print(f"  - Raw events: {len(response.raw_events)}")
-        
+
         if response.text:
             print(f"\nResponse preview:")
             print("-" * 40)
@@ -67,12 +68,13 @@ def test_basic_query():
             print(preview)
             if len(response.text) > 500:
                 print("... (truncated)")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"\n✗ Full response failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -80,7 +82,7 @@ def test_basic_query():
 def main():
     """Run all tests."""
     success = test_basic_query()
-    
+
     print("\n" + "=" * 60)
     if success:
         print("✓ All tests passed!")

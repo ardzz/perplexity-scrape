@@ -9,7 +9,7 @@ from typing import Generator, Union
 
 from fastapi.responses import StreamingResponse
 
-from perplexity_client import PerplexityClient
+from src.core.perplexity_client import PerplexityClient
 from src.models.openai_models import (
     ChatCompletionRequest,
     ChatCompletionResponse,

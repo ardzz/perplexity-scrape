@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v0.2.0 (2026-01-30)
+
+### Features
+
+- Add optional API key authentication and MCP HTTP transport mode
+  ([`bdbbfa4`](https://github.com/ardzz/perplexity-mcp/commit/bdbbfa460af409f98f46a4a1e8569214e0b32f1d))
+
+- Add API key authentication middleware with timing-safe comparison - Support dual MCP transport
+  modes (stdio default, HTTP/SSE optional) - Create API key generator script
+  (scripts/generate_api_key.py) - Protect /v1/chat/completions and /v1/models endpoints when auth
+  enabled - Add pytest infrastructure with 16 passing tests - Update README with authentication and
+  MCP HTTP mode documentation - Remove Architecture section from README per user request
+
+
 ## v0.1.1 (2026-01-30)
 
 ### Bug Fixes
@@ -9,6 +23,11 @@
   ([`9538264`](https://github.com/ardzz/perplexity-mcp/commit/95382643d98fb42d6b07993a0bb9b8d77ab4732e))
 
 File is gitignored and not needed by REST API server
+
+### Chores
+
+- **release**: 0.1.1
+  ([`0119e6c`](https://github.com/ardzz/perplexity-mcp/commit/0119e6c78b114d225e50ea0f3c92fe9f0c371d0b))
 
 
 ## v0.1.0 (2026-01-30)

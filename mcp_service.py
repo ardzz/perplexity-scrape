@@ -95,6 +95,391 @@ Provide a comprehensive programming-focused overview:
 8. **Further Learning**: Documentation, tutorials, and resources
 
 Include working code examples with proper imports and error handling.""",
+    # ==================== ML/DL Research Templates ====================
+    # These templates follow a hybrid format: mathematical rigor + practical code
+    # Designed for machine learning and deep learning research queries
+    "ml_architecture": """Research "{topic}" neural network architecture in machine learning/deep learning.
+
+Provide a rigorous yet accessible explanation with mathematical foundations:
+
+1. **Formal Definition**: 
+   - Precise mathematical definition of the architecture
+   - Use LaTeX notation for all equations (e.g., $f(x) = Wx + b$)
+   - Define all variables and their dimensions explicitly
+
+2. **Intuition & Motivation**:
+   - Why was this architecture developed? What problem does it solve?
+   - Visual mental model: describe how data flows through the architecture
+   - Historical context and evolution from prior architectures
+
+3. **Mathematical Formulation**:
+   - Forward pass equations with full derivation
+   - Key operations (convolution, attention, etc.) with tensor dimensions
+   - Complexity analysis: time and space complexity in Big-O notation
+
+4. **Architecture Components**:
+   - Layer-by-layer breakdown with input/output shapes
+   - Activation functions and their mathematical properties
+   - Normalization, regularization, and other components
+
+5. **Code Implementation**:
+   - Complete, runnable implementation in PyTorch (preferred) or TensorFlow
+   - Include all imports, layer definitions, and forward method
+   - Show example usage with dummy data and correct tensor shapes
+
+6. **Training Considerations**:
+   - Appropriate loss functions and why
+   - Initialization strategies (Xavier, He, etc.) with mathematical justification
+   - Common hyperparameters and their typical ranges
+
+7. **Practical Exercises**:
+   - Exercise 1: Implement a simplified version from scratch (numpy only)
+   - Exercise 2: Modify the architecture for a specific use case
+   - Include expected outputs to verify correctness
+
+8. **Key Papers & References**:
+   - Original paper with arXiv link if available
+   - Follow-up improvements and variants
+   - Benchmark results on standard datasets
+
+Use proper mathematical notation throughout. All equations should be in LaTeX format.""",
+    "ml_training": """Research "{topic}" training procedure/optimization in machine learning/deep learning.
+
+Provide a mathematically rigorous explanation of the training algorithm:
+
+1. **Formal Definition**:
+   - Mathematical formulation of the optimization objective
+   - Loss function definition with LaTeX: $\\mathcal{{L}}(\\theta) = ...$
+   - Gradient computation: $\\nabla_\\theta \\mathcal{{L}} = ...$
+
+2. **Algorithm Derivation**:
+   - Step-by-step derivation from first principles
+   - Show how the update rule is obtained
+   - For momentum-based methods: derive the exponential moving average
+
+3. **Update Rules**:
+   - Parameter update equation: $\\theta_{{t+1}} = \\theta_t - \\alpha \\cdot g_t$
+   - Any auxiliary variables (momentum, adaptive learning rates)
+   - Bias correction terms if applicable
+
+4. **Convergence Analysis**:
+   - Convergence guarantees (convex vs non-convex)
+   - Learning rate requirements for convergence
+   - Regret bounds if applicable
+
+5. **Pseudocode & Implementation**:
+   - Clear pseudocode showing the complete algorithm
+   - PyTorch implementation: both using built-in optimizer and from scratch
+   - Comparison showing they produce identical results
+
+6. **Hyperparameter Guidance**:
+   - Learning rate: typical ranges and scheduling strategies
+   - Momentum/beta parameters: default values and when to adjust
+   - Batch size effects on training dynamics
+
+7. **Practical Considerations**:
+   - Gradient clipping: when and how
+   - Learning rate warmup and decay schedules
+   - Debugging tips: what gradient magnitudes to expect
+
+8. **Exercises**:
+   - Derive the gradient for a simple loss function by hand
+   - Implement the optimizer from scratch and verify against PyTorch
+   - Visualize the optimization trajectory on a simple 2D function
+
+9. **References**:
+   - Original paper introducing the method
+   - Key improvements and variants
+   - Empirical comparisons on benchmark tasks
+
+All mathematical derivations should be complete and verifiable.""",
+    "ml_concepts": """Research "{topic}" concept in machine learning/deep learning.
+
+Provide a comprehensive explanation with theoretical foundations:
+
+1. **Formal Definition**:
+   - Rigorous mathematical definition using proper notation
+   - LaTeX equations for all formulas
+   - Clearly define all terms and symbols used
+
+2. **Intuitive Explanation**:
+   - Plain-language explanation accessible to beginners
+   - Analogies and visual mental models
+   - Why this concept matters in practice
+
+3. **Mathematical Framework**:
+   - Theoretical foundations and assumptions
+   - Key theorems and their implications
+   - Proof sketches for important results
+
+4. **Relationship to Other Concepts**:
+   - How this connects to related ML concepts
+   - Prerequisites for understanding
+   - What this concept enables (downstream applications)
+
+5. **Detection & Measurement**:
+   - How to identify/measure this concept in practice
+   - Metrics and diagnostic tools
+   - Visual indicators (learning curves, etc.)
+
+6. **Practical Solutions**:
+   - Techniques to address or leverage this concept
+   - Code examples showing each technique
+   - Trade-offs between different approaches
+
+7. **Code Demonstration**:
+   - Complete Python example demonstrating the concept
+   - Visualization code (matplotlib/seaborn)
+   - Before/after comparison where applicable
+
+8. **Common Misconceptions**:
+   - Frequently misunderstood aspects
+   - Clarifications with concrete examples
+   - Edge cases and exceptions
+
+9. **Exercises**:
+   - Theoretical: prove a related result or derive a formula
+   - Practical: implement detection/mitigation in code
+   - Analysis: interpret given experimental results
+
+10. **Further Reading**:
+    - Seminal papers and textbook chapters
+    - Online resources and tutorials
+    - Research directions and open questions
+
+Emphasize both mathematical rigor and practical applicability.""",
+    "ml_frameworks": """Research "{topic}" in the context of ML/DL frameworks (PyTorch, TensorFlow, JAX, etc.).
+
+Provide framework-specific guidance with implementation details:
+
+1. **Concept Overview**:
+   - What this feature/API does and why it's important
+   - Which frameworks support it and naming differences
+   - When to use this vs alternatives
+
+2. **API Reference**:
+   - Function/class signature with all parameters
+   - Parameter types and default values
+   - Return types and shapes
+
+3. **Under the Hood**:
+   - How the framework implements this internally
+   - Computational graph implications
+   - Memory and performance characteristics
+
+4. **Basic Usage**:
+   - Minimal working example with imports
+   - Step-by-step explanation of the code
+   - Expected output with tensor shapes
+
+5. **Advanced Patterns**:
+   - Custom implementations and extensions
+   - Integration with training loops
+   - Multi-GPU/distributed considerations
+
+6. **Framework Comparison**:
+   - PyTorch implementation
+   - TensorFlow/Keras equivalent
+   - JAX/Flax approach if applicable
+   - Highlight API differences and gotchas
+
+7. **Performance Optimization**:
+   - Efficient usage patterns
+   - Common performance pitfalls
+   - Profiling and benchmarking approach
+
+8. **Debugging Guide**:
+   - Common errors and their solutions
+   - Shape mismatch debugging
+   - Gradient flow verification
+
+9. **Complete Example**:
+   - Full working code integrating with a training pipeline
+   - Include data loading, model definition, training loop
+   - Show checkpointing and inference
+
+10. **Best Practices**:
+    - Official recommendations from framework documentation
+    - Community conventions and patterns
+    - Version compatibility notes
+
+All code should be complete, runnable, and follow framework conventions.""",
+    "ml_math": """Research "{topic}" mathematical foundations for machine learning.
+
+Provide a rigorous mathematical treatment suitable for ML practitioners:
+
+1. **Formal Definition**:
+   - Precise mathematical definition with all notation explained
+   - Domain and range specifications
+   - Prerequisites from prerequisite fields (linear algebra, calculus, probability)
+
+2. **Intuitive Understanding**:
+   - Geometric or visual interpretation
+   - Connections to familiar concepts
+   - Why ML practitioners need this
+
+3. **Key Theorems & Properties**:
+   - State important theorems precisely using LaTeX
+   - Proof or proof sketch for each
+   - Conditions under which theorems hold
+
+4. **Derivations**:
+   - Step-by-step derivation of key results
+   - Show all algebraic steps explicitly
+   - Highlight common techniques used (chain rule, etc.)
+
+5. **Computational Methods**:
+   - Algorithms for computing/evaluating
+   - Numerical stability considerations
+   - Efficient implementations
+
+6. **Applications in ML**:
+   - Specific ML algorithms that use this concept
+   - How the math translates to code
+   - Real-world examples with data
+
+7. **NumPy/PyTorch Implementation**:
+   - Pure NumPy implementation from first principles
+   - Comparison with built-in functions
+   - Verification of correctness
+
+8. **Worked Examples**:
+   - Detailed numerical examples solved by hand
+   - Corresponding code verification
+   - Visualization where helpful
+
+9. **Exercises**:
+   - Proof exercise: derive a related result
+   - Computation exercise: calculate by hand, verify with code
+   - Application exercise: use in an ML context
+
+10. **References**:
+    - Textbook chapters (Bishop, Murphy, Goodfellow)
+    - Online lecture notes (Stanford CS229, MIT 18.06)
+    - Foundational papers if applicable
+
+All equations must be in proper LaTeX notation. Show complete derivations.""",
+    "ml_paper": """Research "{topic}" machine learning paper/research contribution.
+
+Provide a comprehensive paper analysis and implementation guide:
+
+1. **Paper Overview**:
+   - Full citation with authors, venue, year
+   - arXiv link and official code repository if available
+   - One-paragraph summary of the contribution
+
+2. **Problem Statement**:
+   - What problem does the paper address?
+   - Why was this problem important at the time?
+   - Prior approaches and their limitations
+
+3. **Key Contributions**:
+   - List the main contributions (typically 3-5)
+   - Novel techniques or insights introduced
+   - Theoretical vs empirical contributions
+
+4. **Method/Architecture**:
+   - Detailed explanation of the proposed approach
+   - Mathematical formulation with all equations
+   - Architecture diagram description (if applicable)
+
+5. **Key Equations**:
+   - The most important equations from the paper
+   - Explanation of each term and variable
+   - How these differ from prior work
+
+6. **Implementation Details**:
+   - Hyperparameters used in experiments
+   - Training procedure specifics
+   - Data preprocessing and augmentation
+
+7. **Reproduction Code**:
+   - Minimal PyTorch implementation of the key idea
+   - Focus on the novel contribution, not full paper
+   - Include verification against paper's reported results if possible
+
+8. **Experimental Results**:
+   - Summary of main results and benchmarks
+   - Comparison with baselines
+   - Ablation studies and their insights
+
+9. **Critical Analysis**:
+   - Strengths of the approach
+   - Limitations and failure cases
+   - Assumptions that may not hold in practice
+
+10. **Impact & Follow-ups**:
+    - How influential has this paper been?
+    - Important follow-up works and improvements
+    - Current state-of-the-art in comparison
+
+11. **Study Questions**:
+    - Questions to test understanding of the paper
+    - Implementation challenges to attempt
+    - Extensions to explore
+
+Provide enough detail that someone could implement the key ideas from your summary.""",
+    "ml_debugging": """Research "{topic}" debugging issue in machine learning/deep learning.
+
+Provide systematic debugging guidance with mathematical insights:
+
+1. **Problem Description**:
+   - Clear definition of the issue
+   - How it manifests in training (loss curves, metrics, outputs)
+   - Mathematical explanation of why this happens
+
+2. **Root Causes**:
+   - List all common causes with mathematical reasoning
+   - For each cause: why it leads to this symptom
+   - Probability/frequency of each cause
+
+3. **Diagnostic Process**:
+   - Step-by-step debugging procedure
+   - What to check first (most likely causes)
+   - Specific values/behaviors to look for
+
+4. **Detection Code**:
+   - Python functions to detect the issue
+   - Gradient checking utilities
+   - Visualization code for diagnosis
+
+5. **Mathematical Analysis**:
+   - Formal analysis of when/why the issue occurs
+   - Relevant theorems or bounds
+   - Conditions that trigger the problem
+
+6. **Solutions & Fixes**:
+   - For each root cause: specific solution
+   - Code changes required
+   - Hyperparameter adjustments
+
+7. **Prevention Strategies**:
+   - Best practices to avoid this issue
+   - Architectural choices that help
+   - Initialization and normalization techniques
+
+8. **Verification**:
+   - How to verify the fix worked
+   - Expected behavior after resolution
+   - Regression testing approach
+
+9. **Complete Example**:
+   - Code demonstrating the problem
+   - Code showing the diagnosis
+   - Code implementing the fix
+   - Before/after comparison
+
+10. **Related Issues**:
+    - Other problems with similar symptoms
+    - How to differentiate between them
+    - Issues that often co-occur
+
+11. **Debugging Checklist**:
+    - Quick reference checklist for this issue
+    - Commands/snippets to run
+    - Expected outputs at each step
+
+Include complete, runnable code for all diagnostic and fix examples.""",
 }
 
 # Valid categories for programming research

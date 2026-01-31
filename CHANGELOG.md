@@ -1,7 +1,24 @@
 # CHANGELOG
 
 
+## v0.8.0 (2026-01-31)
+
+### Features
+
+- **release**: Add table-formatted release notes template
+  ([`16a8f58`](https://github.com/ardzz/perplexity-scrape/commit/16a8f58480a4f4243f73a15e921ae995e3b90064))
+
+- Create custom Jinja2 template for GitHub release notes - Display commits in table format (Type |
+  Scope | Description) - Display Docker images in table format (Image | Description | Tags) -
+  Configure python-semantic-release to use templates directory
+
+
 ## v0.7.0 (2026-01-31)
+
+### Chores
+
+- **release**: 0.7.0
+  ([`4597c27`](https://github.com/ardzz/perplexity-scrape/commit/4597c2700ec09894f2934b53a5542f31ee1a3215))
 
 ### Continuous Integration
 

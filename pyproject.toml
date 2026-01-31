@@ -29,6 +29,9 @@ token = { env = "GH_TOKEN" }
 [tool.semantic_release.publish]
 upload_to_vcs_release = true
 
+[tool.semantic_release.changelog]
+template_dir = "templates"
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]

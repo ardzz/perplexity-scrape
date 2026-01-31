@@ -1,0 +1,32 @@
+# Release {{ version.as_tag() }}
+
+Released on {{ release.tagged_date.strftime('%Y-%m-%d') }}
+
+## Changes
+
+{% set has_changes = false %}
+{% for type_name, items in release.elements.items() %}
+  {% if items %}
+    {% set has_changes = true %}
+  {% endif %}
+{% endfor %}
+
+{% if has_changes %}
+| Type | Scope | Description |
+|------|-------|-------------|
+{% for type_name, items in release.elements.items() %}
+  {% for item in items %}
+| {{ type_name }} | {{ item.scope or "-" }} | {{ item.description }} |
+  {% endfor %}
+{% endfor %}
+{% else %}
+No changes in this release.
+{% endif %}
+
+## Docker Images
+
+| Image | Description | Tags |
+|-------|-------------|------|
+| ghcr.io/ardzz/perplexity-mcp | MCP Server for Perplexity AI | {{ version.as_tag() }}, latest |
+| ghcr.io/ardzz/perplexity-openai | OpenAI-compatible REST API for Perplexity AI | {{ version.as_tag() }}, latest |
+| ghcr.io/ardzz/perplexity-scrape | Combined REST API + MCP Server for Perplexity AI | {{ version.as_tag() }}, latest |

@@ -1,12 +1,67 @@
 # CHANGELOG
 
 
+## v0.7.0 (2026-01-31)
+
+### Continuous Integration
+
+- **security**: Add container scanning to release pipeline
+  ([`cfeecac`](https://github.com/ardzz/perplexity-scrape/commit/cfeecacf94eba68176d8a25ba1e8c579c793908a))
+
+- **security**: Add DevSecOps pipeline with Semgrep and Trivy
+  ([`6ec7dc6`](https://github.com/ardzz/perplexity-scrape/commit/6ec7dc659b3ca30f2d90e9f346056ddc900095ef))
+
+- Add Semgrep SAST scanning with Python security rulesets - Add Trivy filesystem scanning for
+  dependency vulnerabilities - Configure SARIF output for GitHub Security Dashboard - Set up weekly
+  scheduled scans and PR/push triggers - Include security scan summary in workflow output
+
+- **security**: Add Semgrep and Trivy ignore files
+  ([`5ce268c`](https://github.com/ardzz/perplexity-scrape/commit/5ce268c1b08c47fa5306306f44816b3a64d92ef1))
+
+- **security**: Fix Trivy ignorefile param and upgrade CodeQL to v4
+  ([`de49bbf`](https://github.com/ardzz/perplexity-scrape/commit/de49bbf8a82c77df963fbdfd98b680a33f400df7))
+
+- **tests**: Add Codecov test results upload
+  ([`06e8d53`](https://github.com/ardzz/perplexity-scrape/commit/06e8d5377f2b5502e4ba309afe3dc71efb7b429e))
+
+### Documentation
+
+- Add community documentation, issue templates, and PR template
+  ([`d7b7e2d`](https://github.com/ardzz/perplexity-scrape/commit/d7b7e2d8ff70bdb5c4a308a25bdb3f8a7fc51d4c))
+
+- LICENSE: MIT License with ardzz as copyright holder - CODE_OF_CONDUCT.md: Contributor Covenant
+  v2.1 - CONTRIBUTING.md: Comprehensive contribution guide - .github/ISSUE_TEMPLATE/bug_report.yml:
+  Bug report form - .github/ISSUE_TEMPLATE/feature_request.yml: Feature request form -
+  .github/ISSUE_TEMPLATE/config.yml: Issue template configuration -
+  .github/PULL_REQUEST_TEMPLATE.md: PR template
+
+### Features
+
+- **mcp**: Add 7 ML/DL research prompt templates
+  ([`e5aee36`](https://github.com/ardzz/perplexity-scrape/commit/e5aee3668cac5fd39a66a417638fd296bea178bc))
+
+Add specialized research prompt templates for machine learning and deep learning topics: -
+  ml_architecture: Neural network architectures (CNN, Transformer, etc.) - ml_training: Training
+  procedures/optimization (Adam, SGD, backprop) - ml_concepts: Core ML concepts (overfitting,
+  regularization) - ml_frameworks: Framework implementations (PyTorch, TensorFlow, JAX) - ml_math:
+  Mathematical foundations (linear algebra, calculus for ML) - ml_paper: Research paper explanations
+  - ml_debugging: ML-specific debugging (vanishing gradients, NaN loss)
+
+Templates follow hybrid format with mathematical rigor (LaTeX notation) + practical code examples +
+  exercises, similar to existing math research prompts.
+
+
 ## v0.6.5 (2026-01-30)
 
 ### Bug Fixes
 
 - Correct YAML indentation in tests.yml (line 40)
   ([`bf19dc6`](https://github.com/ardzz/perplexity-scrape/commit/bf19dc6e4b248681c19aca4de86e5ef535dd687a))
+
+### Chores
+
+- **release**: 0.6.5
+  ([`d7372a3`](https://github.com/ardzz/perplexity-scrape/commit/d7372a3e2a7f28d0c635e0d93ec0d1373d4115e8))
 
 
 ## v0.6.4 (2026-01-30)

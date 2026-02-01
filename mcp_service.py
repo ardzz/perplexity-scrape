@@ -203,12 +203,29 @@ def perplexity_research(
     Args:
         topic: The programming topic to research
         category: Research category - determines the prompt template used:
+            Programming categories:
             - "api": API/SDK documentation and usage patterns
             - "library": Library/framework guides and integration
             - "implementation": Step-by-step implementation guidance
             - "debugging": Troubleshooting and debugging approaches
             - "comparison": Technical comparisons between options
             - "general": General programming-focused research (default)
+            ML Core categories:
+            - "ml_architecture": Neural network architectures and design patterns
+            - "ml_training": Training optimization, hyperparameters, convergence
+            - "ml_concepts": ML/DL theoretical concepts and foundations
+            - "ml_frameworks": PyTorch, TensorFlow, JAX framework usage
+            - "ml_math": Mathematical foundations for ML
+            - "ml_paper": Research paper analysis and implementation
+            - "ml_debugging": ML model debugging and troubleshooting
+            ML Dataset categories:
+            - "ml_dataset_tabular": Structured/tabular data workflows
+            - "ml_dataset_image": Image dataset processing and models
+            - "ml_dataset_text": Text/NLP dataset workflows
+            - "ml_dataset_timeseries": Time series data analysis
+            - "ml_dataset_audio": Audio dataset processing
+            - "ml_dataset_graph": Graph-structured data workflows
+            - "ml_dataset_multimodal": Multi-modal dataset fusion
         model_preference: AI model to use (default: claude45sonnetthinking)
 
     Returns:

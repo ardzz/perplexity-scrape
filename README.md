@@ -223,7 +223,9 @@ curl -X POST http://localhost:8000/mcp \
 
 ### Research Categories
 
-The `perplexity_research` tool supports 6 specialized categories:
+The `perplexity_research` tool supports 20 specialized categories organized into three groups:
+
+#### Programming Categories
 
 | Category | Best For |
 |----------|----------|
@@ -234,9 +236,40 @@ The `perplexity_research` tool supports 6 specialized categories:
 | `comparison` | Technical comparisons between options |
 | `general` | General programming research (default) |
 
-**Example:**
+#### ML Core Categories
+
+| Category | Best For |
+|----------|----------|
+| `ml_architecture` | Neural network architectures and design patterns |
+| `ml_training` | Training optimization, hyperparameters, convergence |
+| `ml_concepts` | ML/DL theoretical concepts and foundations |
+| `ml_frameworks` | PyTorch, TensorFlow, JAX framework usage |
+| `ml_math` | Mathematical foundations (linear algebra, calculus, probability) |
+| `ml_paper` | Research paper analysis and implementation |
+| `ml_debugging` | ML model debugging, loss issues, gradient problems |
+
+#### ML Dataset Categories
+
+| Category | Best For |
+|----------|----------|
+| `ml_dataset_tabular` | Structured/tabular data (CSV, databases, feature engineering) |
+| `ml_dataset_image` | Image datasets (classification, detection, segmentation) |
+| `ml_dataset_text` | Text/NLP datasets (classification, NER, generation) |
+| `ml_dataset_timeseries` | Time series data (forecasting, anomaly detection) |
+| `ml_dataset_audio` | Audio datasets (speech, music, sound classification) |
+| `ml_dataset_graph` | Graph-structured data (social networks, molecules) |
+| `ml_dataset_multimodal` | Multi-modal datasets (image+text, video+audio) |
+
+**Examples:**
 ```python
+# Programming research
 perplexity_research(topic="FastAPI authentication", category="implementation")
+
+# ML framework research
+perplexity_research(topic="PyTorch DataLoader optimization", category="ml_frameworks")
+
+# ML dataset research
+perplexity_research(topic="CIFAR-10 image classification", category="ml_dataset_image")
 ```
 
 ---

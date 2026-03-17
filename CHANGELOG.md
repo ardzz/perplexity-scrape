@@ -1,7 +1,46 @@
 # CHANGELOG
 
 
+## v0.9.0 (2026-03-17)
+
+### Documentation
+
+- Update research categories documentation for 20 templates
+  ([`4fe6031`](https://github.com/ardzz/perplexity-scrape/commit/4fe6031f5b789a6b0015dd2b091d26d60eb5a63c))
+
+- Expand README Research Categories section from 6 to 20 categories - Organize into 3 groups:
+  Programming (6), ML Core (7), ML Dataset (7) - Update perplexity_research tool docstring with all
+  category options - Add ML framework and dataset usage examples
+
+### Features
+
+- Add claude46sonnetthinking model and set as default
+  ([`d950adf`](https://github.com/ardzz/perplexity-scrape/commit/d950adf2724bef757405f9358a24ba5101782092))
+
+- Add claude-4.6-sonnet-thinking, claude-sonnet-4-6-thinking, and claude46sonnetthinking registry
+  entries - Update DEFAULT_MODEL and all default model_preference parameters across client, MCP
+  service, and convenience function - Update test assertions for new default model - Also includes
+  pre-existing uncommitted changes: optional credentials, error handling in MCP tools
+
+### Refactoring
+
+- **prompts**: Modularize templates into src/prompts/ directory
+  ([`f1b7734`](https://github.com/ardzz/perplexity-scrape/commit/f1b77341830479c072ba9754f3f6cb99aba987fb))
+
+- Migrate 13 existing templates to individual files - Add 7 new ML dataset templates (tabular,
+  image, text, timeseries, audio, graph, multimodal) - Each dataset template covers all 4 ML
+  paradigms (supervised, unsupervised, self-supervised, semi-supervised) - Create __init__.py that
+  aggregates all 20 templates into PROGRAMMING_RESEARCH_PROMPTS - Update mcp_service.py to import
+  from src.prompts module - Reduce mcp_service.py by ~475 lines while maintaining backward
+  compatibility
+
+
 ## v0.8.0 (2026-01-31)
+
+### Chores
+
+- **release**: 0.8.0
+  ([`4c53ecf`](https://github.com/ardzz/perplexity-scrape/commit/4c53ecfbdc5f9acc0e4528300c4aafbe982068d1))
 
 ### Features
 

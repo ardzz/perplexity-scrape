@@ -61,9 +61,6 @@ Transform your Perplexity Pro subscription into a powerful API backend. Use cutt
 ```bash
 docker run -d -p 8045:8045 \
   -e PERPLEXITY_SESSION_TOKEN=your_token \
-  -e PERPLEXITY_CF_CLEARANCE=your_clearance \
-  -e PERPLEXITY_VISITOR_ID=your_visitor_id \
-  -e PERPLEXITY_SESSION_ID=your_session_id \
   ghcr.io/ardzz/perplexity-scrape:latest
 ```
 
@@ -92,9 +89,9 @@ pip install -r requirements.txt
 2. **Configure `.env` file** with your Perplexity credentials:
 ```env
 PERPLEXITY_SESSION_TOKEN=your_session_token
-PERPLEXITY_CF_CLEARANCE=your_cf_clearance
-PERPLEXITY_VISITOR_ID=your_visitor_id
-PERPLEXITY_SESSION_ID=your_session_id
+# (optional) PERPLEXITY_CF_CLEARANCE=your_cf_clearance
+# (optional) PERPLEXITY_VISITOR_ID=your_visitor_id
+# (optional) PERPLEXITY_SESSION_ID=your_session_id
 ```
 
 > **Getting Cookies**: Use the [Perplexity Cookies Extension](https://github.com/ardzz/perplexity-cookies) to easily extract these values, or manually copy them from browser DevTools → Network tab → Copy cookies from any Perplexity request.
@@ -387,9 +384,6 @@ docker run -d \
   --name perplexity \
   -p 8045:8045 \
   -e PERPLEXITY_SESSION_TOKEN=your_session_token \
-  -e PERPLEXITY_CF_CLEARANCE=your_cf_clearance \
-  -e PERPLEXITY_VISITOR_ID=your_visitor_id \
-  -e PERPLEXITY_SESSION_ID=your_session_id \
   -e API_KEY=your-api-key \
   ghcr.io/ardzz/perplexity-scrape:latest
 ```
@@ -407,11 +401,11 @@ services:
     ports:
       - "8045:8045"
     environment:
-      # Perplexity credentials (required)
+      # Perplexity credentials (only SESSION_TOKEN is required)
       - PERPLEXITY_SESSION_TOKEN=your_session_token
-      - PERPLEXITY_CF_CLEARANCE=your_cf_clearance
-      - PERPLEXITY_VISITOR_ID=your_visitor_id
-      - PERPLEXITY_SESSION_ID=your_session_id
+      # - PERPLEXITY_CF_CLEARANCE=your_cf_clearance  # optional
+      # - PERPLEXITY_VISITOR_ID=your_visitor_id  # optional
+      # - PERPLEXITY_SESSION_ID=your_session_id  # optional
       # Optional settings
       - API_KEY=your-api-key
       - DEFAULT_MODEL=claude45sonnetthinking
@@ -553,9 +547,9 @@ API_KEY=
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PERPLEXITY_SESSION_TOKEN` | *(required)* | Session token from Perplexity cookies |
-| `PERPLEXITY_CF_CLEARANCE` | *(required)* | Cloudflare clearance token |
-| `PERPLEXITY_VISITOR_ID` | *(required)* | Visitor ID from Perplexity |
-| `PERPLEXITY_SESSION_ID` | *(required)* | Session ID from Perplexity |
+| `PERPLEXITY_CF_CLEARANCE` | *(optional)* | Cloudflare clearance token |
+| `PERPLEXITY_VISITOR_ID` | *(optional)* | Visitor ID from Perplexity |
+| `PERPLEXITY_SESSION_ID` | *(optional)* | Session ID from Perplexity |
 | `REST_API_HOST` | `127.0.0.1` | REST API host |
 | `REST_API_PORT` | `8045` | REST API port |
 | `DEFAULT_MODEL` | `claude45sonnetthinking` | Default model for requests |

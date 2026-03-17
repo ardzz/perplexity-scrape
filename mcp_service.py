@@ -4,12 +4,15 @@ Perplexity MCP Server
 An MCP server that provides Perplexity AI search capabilities.
 """
 
+import logging
 import os
 from typing import Optional
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 from src.core.perplexity_client import PerplexityClient
 from src.prompts import PROGRAMMING_RESEARCH_PROMPTS, VALID_CATEGORIES
+
+logger = logging.getLogger(__name__)
 
 
 def get_transport_security() -> TransportSecuritySettings:
@@ -71,11 +74,29 @@ def get_client() -> PerplexityClient:
     return _client
 
 
+def _error_dict(error: Exception) -> dict:
+    """Build an error response dict matching the standard tool return shape."""
+    msg = f"[Error] {type(error).__name__}: {error}"
+    logger.error(msg)
+    return {
+        "text": msg,
+        "citations": [],
+        "related_queries": [],
+    }
+
+
+def _error_str(error: Exception) -> str:
+    """Build an error response string for tools that return str."""
+    msg = f"[Error] {type(error).__name__}: {error}"
+    logger.error(msg)
+    return msg
+
+
 @mcp.tool()
 def perplexity_ask(
     query: str,
     mode: str = "copilot",
-    model_preference: str = "claude45sonnetthinking",
+    model_preference: str = "claude46sonnetthinking",
     search_focus: str = "internet",
 ) -> dict:
     """
@@ -84,52 +105,60 @@ def perplexity_ask(
     Args:
         query: The search query to send to Perplexity
         mode: Search mode - 'copilot' for comprehensive answers, 'search' for quick results
-        model_preference: AI model to use (default: claude45sonnetthinking)
+        model_preference: AI model to use (default: claude46sonnetthinking)
         search_focus: Focus area - 'internet' for web, 'academic' for scholarly sources
 
     Returns:
         Dictionary containing the search response with text, citations, and related queries
     """
-    client = get_client()
-    response = client.ask(
-        query=query,
-        mode=mode,
-        model_preference=model_preference,
-        search_focus=search_focus,
-    )
+    try:
+        client = get_client()
+        response = client.ask(
+            query=query,
+            mode=mode,
+            model_preference=model_preference,
+            search_focus=search_focus,
+        )
 
-    return {
-        "text": response.text,
-        "citations": response.citations,
-        "related_queries": response.related_queries,
-        "media_count": len(response.media_items),
-    }
+        return {
+            "text": response.text or "No response received.",
+            "citations": response.citations,
+            "related_queries": response.related_queries,
+            "media_count": len(response.media_items),
+        }
+    except Exception as e:
+        result = _error_dict(e)
+        result["media_count"] = 0
+        return result
 
 
 @mcp.tool()
 def perplexity_quick_search(
-    query: str, model_preference: str = "claude45sonnetthinking"
+    query: str, model_preference: str = "claude46sonnetthinking"
 ) -> str:
     """
     Quick web search using Perplexity AI. Returns just the answer text.
 
     Args:
         query: The search query
-        model_preference: AI model to use (default: claude45sonnetthinking)
+        model_preference: AI model to use (default: claude46sonnetthinking)
 
     Returns:
         The response text from Perplexity
     """
-    client = get_client()
-    response = client.ask(
-        query=query, mode="copilot", model_preference=model_preference
-    )
-    return response.text
+    try:
+        client = get_client()
+        response = client.ask(
+            query=query, mode="copilot", model_preference=model_preference
+        )
+        return response.text or "No response received."
+    except Exception as e:
+        return _error_str(e)
 
 
 @mcp.tool()
 def perplexity_academic_search(
-    query: str, model_preference: str = "claude45sonnetthinking"
+    query: str, model_preference: str = "claude46sonnetthinking"
 ) -> dict:
     """
     Search academic sources using Perplexity AI.
@@ -137,62 +166,68 @@ def perplexity_academic_search(
     Args:
         topic: The topic to research
         category: Context category (e.g., "machine learning", "mathematics", "physics")
-        model_preference: AI model to use (default: claude45sonnetthinking)
+        model_preference: AI model to use (default: claude46sonnetthinking)
 
     Returns:
         Dictionary with research findings and citations
     """
-    client = get_client()
-    response = client.ask(
-        query=query,
-        mode="copilot",
-        model_preference=model_preference,
-        search_focus="academic",
-        sources=["scholar"],
-    )
+    try:
+        client = get_client()
+        response = client.ask(
+            query=query,
+            mode="copilot",
+            model_preference=model_preference,
+            search_focus="academic",
+            sources=["scholar"],
+        )
 
-    return {
-        "text": response.text,
-        "citations": response.citations,
-        "related_queries": response.related_queries,
-    }
+        return {
+            "text": response.text or "No response received.",
+            "citations": response.citations,
+            "related_queries": response.related_queries,
+        }
+    except Exception as e:
+        return _error_dict(e)
 
 
 @mcp.tool()
 def perplexity_comprehensive_search(
-    query: str, model_preference: str = "claude45sonnetthinking"
+    query: str, model_preference: str = "claude46sonnetthinking"
 ) -> dict:
     """
     Search both web and academic sources using Perplexity AI.
 
     Args:
         query: The search query
-        model_preference: AI model to use (default: claude45sonnetthinking)
+        model_preference: AI model to use (default: claude46sonnetthinking)
 
     Returns:
         Dictionary with comprehensive answer combining web and scholarly sources
     """
-    client = get_client()
-    response = client.ask(
-        query=query,
-        mode="copilot",
-        model_preference=model_preference,
-        search_focus="internet",
-        sources=["web", "scholar"],
-    )
+    try:
+        client = get_client()
+        response = client.ask(
+            query=query,
+            mode="copilot",
+            model_preference=model_preference,
+            search_focus="internet",
+            sources=["web", "scholar"],
+        )
 
-    return {
-        "text": response.text,
-        "citations": response.citations,
-        "related_queries": response.related_queries,
-    }
+        return {
+            "text": response.text or "No response received.",
+            "citations": response.citations,
+            "related_queries": response.related_queries,
+        }
+    except Exception as e:
+        return _error_dict(e)
 
 
 @mcp.tool()
 def perplexity_research(
     topic: str,
     category: str = "general",
-    model_preference: str = "claude45sonnetthinking",
+    model_preference: str = "claude46sonnetthinking",
 ) -> dict:
     """
     Research a programming topic using Perplexity AI with category-specific prompts.
@@ -226,7 +261,7 @@ def perplexity_research(
             - "ml_dataset_audio": Audio dataset processing
             - "ml_dataset_graph": Graph-structured data workflows
             - "ml_dataset_multimodal": Multi-modal dataset fusion
-        model_preference: AI model to use (default: claude45sonnetthinking)
+        model_preference: AI model to use (default: claude46sonnetthinking)
 
     Returns:
         Dictionary with research findings, code examples, and citations
@@ -240,27 +275,30 @@ def perplexity_research(
     prompt_template = PROGRAMMING_RESEARCH_PROMPTS[normalized_category]
     research_prompt = prompt_template.format(topic=topic)
 
-    client = get_client()
-    response = client.ask(
-        query=research_prompt,
-        mode="copilot",
-        model_preference=model_preference,
-        search_focus="internet",
-        sources=["web", "scholar"],
-    )
+    try:
+        client = get_client()
+        response = client.ask(
+            query=research_prompt,
+            mode="copilot",
+            model_preference=model_preference,
+            search_focus="internet",
+            sources=["web", "scholar"],
+        )
 
-    return {
-        "text": response.text,
-        "citations": response.citations,
-        "related_queries": response.related_queries,
-    }
+        return {
+            "text": response.text or "No response received.",
+            "citations": response.citations,
+            "related_queries": response.related_queries,
+        }
+    except Exception as e:
+        return _error_dict(e)
 
 
 @mcp.tool()
 def perplexity_general_research(
     topic: str,
     category: str = "general",
-    model_preference: str = "claude45sonnetthinking",
+    model_preference: str = "claude46sonnetthinking",
 ) -> dict:
     """
     Research a topic using Perplexity AI with a generic/academic-focused prompt.
@@ -272,7 +310,7 @@ def perplexity_general_research(
     Args:
         topic: The topic to research
         category: Context category (e.g., "machine learning", "mathematics", "physics")
-        model_preference: AI model to use (default: claude45sonnetthinking)
+        model_preference: AI model to use (default: claude46sonnetthinking)
 
     Returns:
         Dictionary with research findings and citations
@@ -288,20 +326,23 @@ Provide a comprehensive overview including:
 
 Use credible sources and cite where possible."""
 
-    client = get_client()
-    response = client.ask(
-        query=research_prompt,
-        mode="copilot",
-        model_preference=model_preference,
-        search_focus="internet",
-        sources=["web", "scholar"],
-    )
+    try:
+        client = get_client()
+        response = client.ask(
+            query=research_prompt,
+            mode="copilot",
+            model_preference=model_preference,
+            search_focus="internet",
+            sources=["web", "scholar"],
+        )
 
-    return {
-        "text": response.text,
-        "citations": response.citations,
-        "related_queries": response.related_queries,
-    }
+        return {
+            "text": response.text or "No response received.",
+            "citations": response.citations,
+            "related_queries": response.related_queries,
+        }
+    except Exception as e:
+        return _error_dict(e)
 
 
 if __name__ == "__main__":

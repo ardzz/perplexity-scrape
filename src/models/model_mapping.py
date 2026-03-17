@@ -52,7 +52,7 @@ MODEL_REGISTRY: dict[str, ModelConfig] = {
     ),
     "claude-sonnet-4-5-thinking": ModelConfig(
         perplexity_model="claude45sonnetthinking",
-        description="Claude 4.5 Sonnet with Reasoning (recommended)",
+        description="Claude 4.5 Sonnet with Reasoning",
     ),
     "claude-4.5-sonnet-thinking": ModelConfig(
         perplexity_model="claude45sonnetthinking",
@@ -61,6 +61,19 @@ MODEL_REGISTRY: dict[str, ModelConfig] = {
     "claude45sonnetthinking": ModelConfig(
         perplexity_model="claude45sonnetthinking",
         description="Claude 4.5 Sonnet with Reasoning",
+    ),
+    # Claude 4.6 Sonnet
+    "claude-4.6-sonnet-thinking": ModelConfig(
+        perplexity_model="claude46sonnetthinking",
+        description="Claude 4.6 Sonnet with Reasoning (recommended)",
+    ),
+    "claude-sonnet-4-6-thinking": ModelConfig(
+        perplexity_model="claude46sonnetthinking",
+        description="Claude 4.6 Sonnet with Reasoning",
+    ),
+    "claude46sonnetthinking": ModelConfig(
+        perplexity_model="claude46sonnetthinking",
+        description="Claude 4.6 Sonnet with Reasoning",
     ),
     # Claude 4.5 Opus
     "claude-4.5-opus": ModelConfig(
@@ -187,7 +200,7 @@ MODEL_REGISTRY: dict[str, ModelConfig] = {
 }
 
 # Default model when unknown model is requested
-DEFAULT_MODEL = "claude45sonnetthinking"
+DEFAULT_MODEL = "claude46sonnetthinking"
 DEFAULT_MODE = "copilot"
 DEFAULT_SEARCH_FOCUS = "internet"
 

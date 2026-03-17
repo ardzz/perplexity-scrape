@@ -49,11 +49,10 @@ class PerplexityClient:
         self.visitor_id = os.getenv("PERPLEXITY_VISITOR_ID")
         self.session_id = os.getenv("PERPLEXITY_SESSION_ID")
 
-        if not all([self.session_token, self.cf_clearance, self.visitor_id]):
+        if not self.session_token:
             raise ValueError(
-                "Missing required environment variables. "
-                "Please set PERPLEXITY_SESSION_TOKEN, PERPLEXITY_CF_CLEARANCE, "
-                "and PERPLEXITY_VISITOR_ID in your .env file."
+                "Missing required environment variable. "
+                "Please set PERPLEXITY_SESSION_TOKEN in your .env file."
             )
 
     def _build_cookies(self) -> dict:
@@ -90,7 +89,7 @@ class PerplexityClient:
         self,
         query: str,
         mode: str = "copilot",
-        model_preference: str = "claude45sonnetthinking",
+        model_preference: str = "claude46sonnetthinking",
         search_focus: str = "internet",
         sources: Optional[list[str]] = None,
         language: str = "en-US",
@@ -186,7 +185,7 @@ class PerplexityClient:
         self,
         query: str,
         mode: str = "copilot",
-        model_preference: str = "claude45sonnetthinking",
+        model_preference: str = "claude46sonnetthinking",
         search_focus: str = "internet",
         sources: Optional[list[str]] = None,
         is_incognito: bool = False,
@@ -254,7 +253,7 @@ class PerplexityClient:
         self,
         query: str,
         mode: str = "copilot",
-        model_preference: str = "claude45sonnetthinking",
+        model_preference: str = "claude46sonnetthinking",
         search_focus: str = "internet",
         sources: Optional[list[str]] = None,
         is_incognito: bool = False,
@@ -343,7 +342,7 @@ class PerplexityClient:
 def perplexity_search(
     query: str,
     mode: str = "copilot",
-    model_preference: str = "claude45sonnetthinking",
+    model_preference: str = "claude46sonnetthinking",
 ) -> str:
     """
     Simple function to search using Perplexity.

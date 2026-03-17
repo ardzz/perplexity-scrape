@@ -55,8 +55,8 @@ class TestPerplexityClientInit:
 
                 assert "PERPLEXITY_SESSION_TOKEN" in str(exc_info.value)
 
-    def test_init_raises_error_if_cf_clearance_missing(self):
-        """Test that ValueError is raised if PERPLEXITY_CF_CLEARANCE is missing."""
+    def test_init_allows_optional_cf_clearance(self):
+        """Test that PERPLEXITY_CF_CLEARANCE is optional."""
         env_vars = {
             "PERPLEXITY_SESSION_TOKEN": "test_session_token",
             "PERPLEXITY_VISITOR_ID": "test_visitor_id",
@@ -64,13 +64,11 @@ class TestPerplexityClientInit:
 
         with patch.dict("os.environ", env_vars, clear=True):
             with patch("src.core.perplexity_client.load_dotenv"):
-                with pytest.raises(ValueError) as exc_info:
-                    PerplexityClient()
+                client = PerplexityClient()
+                assert client.cf_clearance is None
 
-                assert "PERPLEXITY_CF_CLEARANCE" in str(exc_info.value)
-
-    def test_init_raises_error_if_visitor_id_missing(self):
-        """Test that ValueError is raised if PERPLEXITY_VISITOR_ID is missing."""
+    def test_init_allows_optional_visitor_id(self):
+        """Test that PERPLEXITY_VISITOR_ID is optional."""
         env_vars = {
             "PERPLEXITY_SESSION_TOKEN": "test_session_token",
             "PERPLEXITY_CF_CLEARANCE": "test_cf_clearance",
@@ -78,10 +76,8 @@ class TestPerplexityClientInit:
 
         with patch.dict("os.environ", env_vars, clear=True):
             with patch("src.core.perplexity_client.load_dotenv"):
-                with pytest.raises(ValueError) as exc_info:
-                    PerplexityClient()
-
-                assert "PERPLEXITY_VISITOR_ID" in str(exc_info.value)
+                client = PerplexityClient()
+                assert client.visitor_id is None
 
     def test_init_allows_optional_session_id(self):
         """Test that PERPLEXITY_SESSION_ID is optional."""
@@ -415,7 +411,7 @@ class TestBuildPayload:
         client = self._create_client()
         payload = client._build_payload("test")
 
-        assert payload["params"]["model_preference"] == "claude45sonnetthinking"
+        assert payload["params"]["model_preference"] == "claude46sonnetthinking"
 
     def test_build_payload_params_includes_search_focus(self):
         """Test that params includes search_focus."""

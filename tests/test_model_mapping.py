@@ -128,7 +128,7 @@ class TestGetPerplexityModel:
         """Test unknown model returns DEFAULT_MODEL."""
         result = get_perplexity_model("unknown-model-xyz")
         assert result == DEFAULT_MODEL
-        assert result == "claude45sonnetthinking"
+        assert result == "claude46sonnetthinking"
 
     def test_empty_string_returns_default(self):
         """Test empty string returns DEFAULT_MODEL."""
@@ -488,7 +488,7 @@ class TestConstants:
 
     def test_default_model_constant(self):
         """Test DEFAULT_MODEL constant is set."""
-        assert DEFAULT_MODEL == "claude45sonnetthinking"
+        assert DEFAULT_MODEL == "claude46sonnetthinking"
         assert isinstance(DEFAULT_MODEL, str)
 
     def test_default_mode_constant(self):
@@ -583,4 +583,4 @@ class TestIntegration:
 
         # All should return DEFAULT_MODEL
         assert all(result == DEFAULT_MODEL for result in results)
-        assert all(result == "claude45sonnetthinking" for result in results)
+        assert all(result == "claude46sonnetthinking" for result in results)

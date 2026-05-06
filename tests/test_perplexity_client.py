@@ -255,7 +255,7 @@ class TestBuildHeaders:
         headers = client._build_headers("test-request-id")
 
         assert "accept-language" in headers
-        assert headers["accept-language"] == "en-US,en;q=0.9"
+        assert headers["accept-language"] == "en-US,en;q=0.9,id;q=0.8,nb;q=0.7"
 
     def test_build_headers_includes_content_type(self):
         """Test that _build_headers includes content-type header."""
@@ -279,7 +279,7 @@ class TestBuildHeaders:
         headers = client._build_headers("test-request-id")
 
         assert "referer" in headers
-        assert headers["referer"] == "https://www.perplexity.ai/?"
+        assert headers["referer"] == "https://www.perplexity.ai/"
 
     def test_build_headers_includes_user_agent(self):
         """Test that _build_headers includes user-agent header."""

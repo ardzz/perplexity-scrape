@@ -73,15 +73,17 @@ class PerplexityClient:
         """Build request headers."""
         return {
             "accept": "text/event-stream",
-            "accept-language": "en-US,en;q=0.9",
+            "accept-language": "en-US,en;q=0.9,id;q=0.8,nb;q=0.7",
             "content-type": "application/json",
             "origin": self.BASE_URL,
-            "referer": f"{self.BASE_URL}/?",
-            "sec-ch-ua": '"Microsoft Edge";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
+            "referer": f"{self.BASE_URL}/",
+            "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Microsoft Edge";v="146"',
             "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "sec-ch-ua-platform": '"Linux"',
+            "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0",
+            "x-perplexity-request-endpoint": f"{self.BASE_URL}{self.SSE_ENDPOINT}",
             "x-perplexity-request-reason": "perplexity-query-state-provider",
+            "x-perplexity-request-try-number": "1",
             "x-request-id": request_id,
         }
 
@@ -118,7 +120,6 @@ class PerplexityClient:
                 "timezone": timezone,
                 "search_focus": search_focus,
                 "sources": sources or ["web", "scholar"],
-                "search_recency_filter": None,
                 "frontend_uuid": frontend_uuid,
                 "mode": mode,
                 "model_preference": model_preference,
@@ -128,7 +129,7 @@ class PerplexityClient:
                 "prompt_source": "user",
                 "query_source": "home",
                 "is_incognito": is_incognito,
-                "time_from_first_type": 2000.0,
+                "time_from_first_type": 4395.6,
                 "local_search_enabled": False,
                 "use_schematized_api": True,
                 "send_back_text_in_streaming_api": False,
@@ -158,11 +159,32 @@ class PerplexityClient:
                     "answer_tabs",
                     "price_comparison_widgets",
                     "preserve_latex",
+                    "generic_onboarding_widgets",
                     "in_context_suggestions",
+                    "pending_followups",
+                    "inline_claims",
+                    "unified_assets",
+                    "workflow_steps",
+                    "background_agents",
                 ],
+                "client_coordinates": None,
+                "mentions": [],
                 "dsl_query": query,
                 "skip_search_enabled": True,
+                "is_nav_suggestions_disabled": False,
+                "source": "default",
+                "always_search_override": False,
+                "override_no_search": False,
+                "client_search_results_cache_key": frontend_uuid,
+                "should_ask_for_mcp_tool_confirmation": True,
+                "browser_agent_allow_once_from_toggle": False,
+                "force_enable_browser_agent": False,
+                "supported_features": [
+                    "browser_agent_permission_banner_v1.1",
+                ],
+                "extended_context": False,
                 "version": "2.18",
+                "rum_session_id": str(uuid.uuid4()),
             },
             "query_str": query,
         }
@@ -321,6 +343,29 @@ class PerplexityClient:
                                         answer_data = json.loads(answer_str)
                                         if "answer" in answer_data:
                                             result.text = answer_data["answer"]
+                                        # Also extract citations from web_results in answer
+                                        for wr in answer_data.get(
+                                            "web_results", []
+                                        ):
+                                            if wr.get("name") and wr.get("url"):
+                                                result.citations.append(
+                                                    {
+                                                        "title": wr.get("name", ""),
+                                                        "url": wr.get("url", ""),
+                                                        "snippet": wr.get(
+                                                            "snippet", ""
+                                                        ),
+                                                    }
+                                                )
+                                        # Extract from structured_answer
+                                        for item in answer_data.get(
+                                            "structured_answer", []
+                                        ):
+                                            if (
+                                                item.get("type") == "markdown"
+                                                and item.get("text")
+                                            ):
+                                                result.text = item["text"]
                                     except json.JSONDecodeError:
                                         # answer might be plain text
                                         result.text = answer_str
@@ -334,6 +379,26 @@ class PerplexityClient:
                                         result.text = item["text"]
                     except json.JSONDecodeError:
                         pass
+
+            # Handle streaming blocks with text chunks (fallback if no FINAL)
+            if not step_type and not result.text:
+                blocks = event.get("blocks", [])
+                for block in blocks:
+                    if block.get("intended_usage") in (
+                        "ask_text_0_markdown",
+                        "ask_text",
+                    ):
+                        diff_block = block.get("diff_block", {})
+                        patches = diff_block.get("patches", [])
+                        for patch in patches:
+                            if patch.get("op") == "replace" and patch.get("value"):
+                                value = patch["value"]
+                                if isinstance(value, dict) and value.get("chunks"):
+                                    result.text = "".join(value["chunks"])
+                            elif patch.get("op") == "add" and patch.get("value"):
+                                # Append chunk
+                                if result.text:
+                                    result.text += patch["value"]
 
         return result
 

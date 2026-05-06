@@ -1,7 +1,20 @@
 # CHANGELOG
 
 
+## v0.10.0 (2026-05-06)
+
+### Features
+
+- Update request/response scheme to latest Perplexity API format
+  ([`8dd829a`](https://github.com/ardzz/perplexity-scrape/commit/8dd829a44fcd7e2606665d64b15deca561f0471b))
+
+
 ## v0.9.0 (2026-03-17)
+
+### Chores
+
+- **release**: 0.9.0
+  ([`3095e47`](https://github.com/ardzz/perplexity-scrape/commit/3095e47e9e354aa2fcca049409f82eded1e3f150))
 
 ### Documentation
 

@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "burpsuite": {
+      "command": "python",
+      "args": ["/path/to/burpsuite-mcp/server.py"],
+      "env": {
+        "BURP_API_KEY": "your-burp-api-key",
+        "BURP_HOST": "http://127.0.0.1:1337"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/daud"],
+      "env": {}
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "your-brave-api-key"
+      }
+    },
+    "custom-tool": {
+      "command": "python",
+      "args": ["/path/to/your/custom_mcp_server.py"],
+      "env": {}
+    }
+  }
+}

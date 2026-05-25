@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "local": {
+      "command": "python3",
+      "args": ["/home/daud/AIProject/perplexity-scrape/scripts/shell_mcp.py"]
+    }
+  }
+}

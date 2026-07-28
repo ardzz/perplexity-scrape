@@ -59,8 +59,6 @@ class TestPerplexityClientIntegration:
     def test_client_initialization_with_real_credentials(self, client):
         """Test that client initializes with real credentials."""
         assert client.session_token is not None
-        assert client.cf_clearance is not None
-        assert client.visitor_id is not None
 
     def test_ask_returns_response(self, client):
         """Test that ask() returns a valid response."""

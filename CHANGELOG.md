@@ -1,7 +1,36 @@
 # CHANGELOG
 
 
+## v2.0.0 (2026-07-28)
+
+### Features
+
+- Refresh model lineup to current Perplexity models and recover citations/images
+  ([`ba47c6d`](https://github.com/ardzz/perplexity-scrape/commit/ba47c6d0747f7b9cf57edae3cbd2689655d0aa9f))
+
+- Replace stale aliases (Claude 4.5 / GPT-5.2 / Grok 4.1 / Gemini 3 / Kimi 2.5) with the current
+  selector lineup (Claude Sonnet/Opus 5, GPT-5.6 Terra/Sol, Gemini 3.1 Pro, Grok 4.5, Kimi K3, GLM
+  5.2, Nemotron 3) using exact Perplexity internal IDs - Set gpt56_terra_thinking as the unified
+  default across registry, client, config, MCP service, and .env.example - Add answer_enrichment:
+  recover web citations, inline images and related queries from the SSE stream and append them as a
+  markdown appendix in both streaming and non-streaming paths - Refresh opencode-provider.json model
+  list
+
+BREAKING CHANGE: legacy model IDs (e.g. claude-4.5-sonnet, gpt-5.2) are removed; unknown models now
+  fall back to gpt56_terra_thinking.
+
+### BREAKING CHANGES
+
+- Legacy model IDs (e.g. claude-4.5-sonnet, gpt-5.2) are removed; unknown models now fall back to
+  gpt56_terra_thinking.
+
+
 ## v1.0.0 (2026-05-13)
+
+### Chores
+
+- **release**: 1.0.0
+  ([`62f017a`](https://github.com/ardzz/perplexity-scrape/commit/62f017a298246e175c61341ae61bd8aca2702853))
 
 ### Features
 

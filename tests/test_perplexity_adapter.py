@@ -183,13 +183,13 @@ class TestComplete:
         messages = [ChatMessage(role=MessageRole.USER, content="Test")]
 
         # Act
-        result = adapter.complete(messages=messages, model="claude-4.5-sonnet")
+        result = adapter.complete(messages=messages, model="claude-sonnet-5")
 
         # Assert
         mock_client.ask.assert_called_once()
         call_kwargs = mock_client.ask.call_args.kwargs
         assert call_kwargs["query"] == "Test"
-        assert call_kwargs["model_preference"] == "claude45sonnet"
+        assert call_kwargs["model_preference"] == "claude50sonnet"
         assert call_kwargs["is_incognito"] is True
         assert call_kwargs["mode"] == "copilot"
         assert call_kwargs["search_focus"] == "internet"
@@ -206,12 +206,12 @@ class TestComplete:
 
         # Act
         response_text, model_name = adapter.complete(
-            messages=messages, model="claude-4.5-sonnet"
+            messages=messages, model="claude-sonnet-5"
         )
 
         # Assert
         assert response_text == "Test response"
-        assert model_name == "claude45sonnet"
+        assert model_name == "claude50sonnet"
         assert isinstance(response_text, str)
         assert isinstance(model_name, str)
 
@@ -226,10 +226,10 @@ class TestComplete:
         messages = [ChatMessage(role=MessageRole.USER, content="Test")]
 
         # Test with different model
-        adapter.complete(messages=messages, model="gpt-5.2")
+        adapter.complete(messages=messages, model="gpt-5.6-terra")
 
         call_kwargs = mock_client.ask.call_args.kwargs
-        assert call_kwargs["model_preference"] == "gpt52"
+        assert call_kwargs["model_preference"] == "gpt56_terra"
 
     def test_complete_formats_messages_as_query(self):
         """Test that complete() formats messages correctly."""
@@ -245,7 +245,7 @@ class TestComplete:
         ]
 
         # Act
-        adapter.complete(messages=messages, model="claude45sonnetthinking")
+        adapter.complete(messages=messages, model="claude50sonnetthinking")
 
         # Assert
         call_kwargs = mock_client.ask.call_args.kwargs
@@ -264,7 +264,7 @@ class TestComplete:
         messages = [ChatMessage(role=MessageRole.USER, content="Test")]
 
         # Act
-        adapter.complete(messages=messages, model="claude45sonnetthinking")
+        adapter.complete(messages=messages, model="claude50sonnetthinking")
 
         # Assert
         call_kwargs = mock_client.ask.call_args.kwargs
@@ -282,12 +282,12 @@ class TestComplete:
 
         # Act
         response_text, model_name = adapter.complete(
-            messages=messages, model="claude45sonnetthinking"
+            messages=messages, model="claude50sonnetthinking"
         )
 
         # Assert
         assert response_text == ""
-        assert model_name == "claude45sonnetthinking"
+        assert model_name == "claude50sonnetthinking"
 
     def test_complete_returns_correct_perplexity_model_name(self):
         """Test that complete returns the perplexity model name, not openai name."""
@@ -301,12 +301,12 @@ class TestComplete:
 
         # Act
         _, model_name = adapter.complete(
-            messages=messages, model="claude-4.5-sonnet-thinking"
+            messages=messages, model="claude-sonnet-5-thinking"
         )
 
         # Assert
         # Should return perplexity model name, not OpenAI name
-        assert model_name == "claude45sonnetthinking"
+        assert model_name == "claude50sonnetthinking"
 
 
 class TestStream:
@@ -323,12 +323,12 @@ class TestStream:
 
         # Act
         generator, model_name = adapter.stream(
-            messages=messages, model="claude-4.5-sonnet"
+            messages=messages, model="claude-sonnet-5"
         )
 
         # Assert
         assert hasattr(generator, "__iter__")
-        assert model_name == "claude45sonnet"
+        assert model_name == "claude50sonnet"
         assert isinstance(model_name, str)
 
     def test_stream_generator_yields_chunks(self):
@@ -351,7 +351,7 @@ class TestStream:
 
             # Act
             generator, _ = adapter.stream(
-                messages=messages, model="claude45sonnetthinking"
+                messages=messages, model="claude50sonnetthinking"
             )
             chunks = list(generator)
 
@@ -370,7 +370,7 @@ class TestStream:
         # Mock ChunkExtractor to prevent iteration issues
         with patch("src.services.perplexity_adapter.ChunkExtractor"):
             # Act
-            generator, _ = adapter.stream(messages=messages, model="claude-4.5-sonnet")
+            generator, _ = adapter.stream(messages=messages, model="claude-sonnet-5")
             # Consume generator to trigger ask_stream call
             list(generator)
 
@@ -378,7 +378,7 @@ class TestStream:
             mock_client.ask_stream.assert_called_once()
             call_kwargs = mock_client.ask_stream.call_args.kwargs
             assert call_kwargs["query"] == "Test"
-            assert call_kwargs["model_preference"] == "claude45sonnet"
+            assert call_kwargs["model_preference"] == "claude50sonnet"
             assert call_kwargs["is_incognito"] is True
 
     def test_stream_uses_is_incognito_true(self):
@@ -394,7 +394,7 @@ class TestStream:
         with patch("src.services.perplexity_adapter.ChunkExtractor"):
             # Act
             generator, _ = adapter.stream(
-                messages=messages, model="claude45sonnetthinking"
+                messages=messages, model="claude50sonnetthinking"
             )
             list(generator)
 
@@ -418,7 +418,7 @@ class TestStream:
         with patch("src.services.perplexity_adapter.ChunkExtractor"):
             # Act
             generator, _ = adapter.stream(
-                messages=messages, model="claude45sonnetthinking"
+                messages=messages, model="claude50sonnetthinking"
             )
             list(generator)
 
@@ -440,10 +440,10 @@ class TestStream:
         # Mock ChunkExtractor
         with patch("src.services.perplexity_adapter.ChunkExtractor"):
             # Act
-            _, model_name = adapter.stream(messages=messages, model="grok-4.1-thinking")
+            _, model_name = adapter.stream(messages=messages, model="grok-4.5-thinking")
 
             # Assert
-            assert model_name == "grok41reasoning"
+            assert model_name == "grok45medium"
 
     def test_stream_with_multiple_events(self):
         """Test stream processes multiple events correctly."""
@@ -469,7 +469,7 @@ class TestStream:
 
             # Act
             generator, _ = adapter.stream(
-                messages=messages, model="claude45sonnetthinking"
+                messages=messages, model="claude50sonnetthinking"
             )
             chunks = list(generator)
 
@@ -498,7 +498,7 @@ class TestStream:
 
             # Act
             generator, _ = adapter.stream(
-                messages=messages, model="claude45sonnetthinking"
+                messages=messages, model="claude50sonnetthinking"
             )
             chunks = list(generator)
 
@@ -528,12 +528,12 @@ class TestIntegration:
 
         # Act
         response_text, model_name = adapter.complete(
-            messages=messages, model="claude-4.5-sonnet"
+            messages=messages, model="claude-sonnet-5"
         )
 
         # Assert
         assert response_text == "AI is artificial intelligence"
-        assert model_name == "claude45sonnet"
+        assert model_name == "claude50sonnet"
         mock_client.ask.assert_called_once()
 
     def test_adapter_workflow_stream(self):
@@ -557,26 +557,26 @@ class TestIntegration:
 
             # Act
             generator, model_name = adapter.stream(
-                messages=messages, model="claude-4.5-sonnet"
+                messages=messages, model="claude-sonnet-5"
             )
             chunks = list(generator)
 
             # Assert
             assert chunks == ["streaming", "response"]
-            assert model_name == "claude45sonnet"
+            assert model_name == "claude50sonnet"
             mock_client.ask_stream.assert_called_once()
 
     def test_different_model_mappings(self):
         """Test that different OpenAI models map to correct Perplexity models."""
         # Arrange
         test_cases = [
-            ("claude-4.5-sonnet", "claude45sonnet"),
-            ("claude-4.5-sonnet-thinking", "claude45sonnetthinking"),
-            ("gpt-5.2", "gpt52"),
-            ("gpt-5.2-thinking", "gpt52_thinking"),
-            ("gemini-3-flash", "gemini30flash"),
-            ("grok-4.1", "grok41nonreasoning"),
-            ("grok-4.1-thinking", "grok41reasoning"),
+            ("claude-sonnet-5", "claude50sonnet"),
+            ("claude-sonnet-5-thinking", "claude50sonnetthinking"),
+            ("gpt-5.6-terra", "gpt56_terra"),
+            ("gpt-5.6-terra-thinking", "gpt56_terra_thinking"),
+            ("gemini-3.1-pro", "gemini31pro_low"),
+            ("grok-4.5", "grok45low"),
+            ("grok-4.5-thinking", "grok45medium"),
         ]
 
         mock_client = Mock()

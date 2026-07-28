@@ -4,20 +4,17 @@ Released on {{ release.tagged_date.strftime('%Y-%m-%d') }}
 
 ## Changes
 
-{% set has_changes = false %}
+{% set ns = namespace(has_changes=false) %}
 {% for type_name, items in release.elements.items() %}
-  {% if items %}
-    {% set has_changes = true %}
-  {% endif %}
+{% if items %}{% set ns.has_changes = true %}{% endif %}
 {% endfor %}
-
-{% if has_changes %}
+{% if ns.has_changes %}
 | Type | Scope | Description |
 |------|-------|-------------|
 {% for type_name, items in release.elements.items() %}
-  {% for item in items %}
-| {{ type_name }} | {{ item.scope or "-" }} | {{ item.description }} |
-  {% endfor %}
+{% for item in items %}
+| {{ type_name }} | {{ item.scope or "-" }} | {{ item.descriptions[0] }} |
+{% endfor %}
 {% endfor %}
 {% else %}
 No changes in this release.

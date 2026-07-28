@@ -65,7 +65,7 @@ class TestPerplexityClientIntegration:
         response = client.ask(
             query="What is 2 + 2?",
             mode="copilot",
-            model_preference="pplx_alpha",  # Use fast model for testing
+            model_preference="experimental",  # Use fast model for testing
             is_incognito=True,
         )
 
@@ -81,7 +81,7 @@ class TestPerplexityClientIntegration:
             client.ask_stream(
                 query="Say hello",
                 mode="copilot",
-                model_preference="pplx_alpha",
+                model_preference="experimental",
                 is_incognito=True,
             )
         )
@@ -93,7 +93,7 @@ class TestPerplexityClientIntegration:
 
     def test_ask_with_different_models(self, client):
         """Test that different models can be used."""
-        models_to_test = ["pplx_alpha", "claude45sonnetthinking"]
+        models_to_test = ["experimental", "claude50sonnetthinking"]
 
         for model in models_to_test:
             response = client.ask(
@@ -126,7 +126,7 @@ class TestPerplexityAdapterIntegration:
 
         response_text, model_name = adapter.complete(
             messages=messages,
-            model="pplx-alpha",  # Use fast model
+            model="experimental",  # Use fast model
         )
 
         assert response_text is not None
@@ -141,7 +141,7 @@ class TestPerplexityAdapterIntegration:
 
         generator, model_name = adapter.stream(
             messages=messages,
-            model="pplx-alpha",
+            model="experimental",
         )
 
         chunks = list(generator)
@@ -174,7 +174,7 @@ class TestChatCompletionServiceIntegration:
         )
 
         request = ChatCompletionRequest(
-            model="pplx-alpha",
+            model="experimental",
             messages=[ChatMessage(role=MessageRole.USER, content="Say hi")],
             stream=False,
         )
@@ -198,7 +198,7 @@ class TestChatCompletionServiceIntegration:
         )
 
         request = ChatCompletionRequest(
-            model="pplx-alpha",
+            model="experimental",
             messages=[ChatMessage(role=MessageRole.USER, content="Say hello")],
             stream=True,
         )
@@ -244,7 +244,7 @@ class TestRESTAPIIntegration:
         response = await test_client.post(
             "/v1/chat/completions",
             json={
-                "model": "pplx-alpha",
+                "model": "experimental",
                 "messages": [{"role": "user", "content": "What is 5 + 5?"}],
                 "stream": False,
             },

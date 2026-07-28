@@ -1,7 +1,26 @@
 # CHANGELOG
 
 
+## v2.0.1 (2026-07-28)
+
+### Bug Fixes
+
+- **ci**: Unblock pipeline — pin mcp <2.0, repair release-notes template, align adapter tests
+  ([`78a5bcd`](https://github.com/ardzz/perplexity-scrape/commit/78a5bcd81dc717a90dcceff82a0d6c618146d6e1))
+
+- Pin mcp[cli] to <2.0.0 in requirements.txt: mcp 2.0 removed mcp.server.fastmcp, breaking the
+  test-collection import in CI - Fix release-notes Jinja template: has_changes was set inside a
+  for-loop (loop-local scope) so it never escaped, making every release note say 'No changes in this
+  release'; use a namespace flag and read item.descriptions[0] (singular item.description does not
+  exist in PSR v9) - Update adapter tests to current model registry IDs
+
+
 ## v2.0.0 (2026-07-28)
+
+### Chores
+
+- **release**: 2.0.0
+  ([`0141582`](https://github.com/ardzz/perplexity-scrape/commit/0141582cadd01c3329a902a30fceb607381b66c2))
 
 ### Features
 

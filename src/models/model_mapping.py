@@ -3,7 +3,6 @@ Model mapping between OpenAI-style model names and Perplexity internal models.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
@@ -17,190 +16,219 @@ class ModelConfig:
     description: str = ""
 
 
-# Model registry mapping OpenAI-style names to Perplexity configurations
+# Model registry mapping OpenAI-style names to Perplexity configurations.
+# Internal perplexity_model IDs mirror Perplexity's live model selector
+# (mode="search" entries). Update these when Perplexity ships new models.
 MODEL_REGISTRY: dict[str, ModelConfig] = {
     # =========================================================================
-    # Perplexity Native Models
+    # Perplexity Native / Auto
     # =========================================================================
+    "best": ModelConfig(
+        perplexity_model="pplx_pro",
+        description="Best - auto-selects the best model per query",
+    ),
+    "auto": ModelConfig(
+        perplexity_model="pplx_pro",
+        description="Best - auto-selects the best model per query",
+    ),
+    "pplx_pro": ModelConfig(
+        perplexity_model="pplx_pro",
+        description="Best - auto-selects the best model per query",
+    ),
     "sonar": ModelConfig(
         perplexity_model="experimental",
-        description="Perplexity Sonar (experimental)",
+        description="Sonar 2 - Perplexity's latest in-house model",
+    ),
+    "sonar-2": ModelConfig(
+        perplexity_model="experimental",
+        description="Sonar 2 - Perplexity's latest in-house model",
     ),
     "experimental": ModelConfig(
         perplexity_model="experimental",
-        description="Perplexity Sonar (experimental)",
+        description="Sonar 2 - Perplexity's latest in-house model",
     ),
     "pplx-alpha": ModelConfig(
         perplexity_model="pplx_alpha",
-        description="Perplexity Alpha - faster responses",
+        description="Perplexity Alpha - deep research",
     ),
     "perplexity-alpha": ModelConfig(
         perplexity_model="pplx_alpha",
-        description="Perplexity Alpha - faster responses",
+        description="Perplexity Alpha - deep research",
     ),
     # =========================================================================
-    # Claude Models
+    # Claude (Anthropic) - current: Sonnet 5, Opus 5
     # =========================================================================
-    # Claude 4.5 Sonnet
-    "claude-4.5-sonnet": ModelConfig(
-        perplexity_model="claude45sonnet",
-        description="Claude 4.5 Sonnet",
+    "claude-sonnet-5": ModelConfig(
+        perplexity_model="claude50sonnet",
+        description="Claude Sonnet 5",
     ),
-    "claude45sonnet": ModelConfig(
-        perplexity_model="claude45sonnet",
-        description="Claude 4.5 Sonnet",
+    "claude50sonnet": ModelConfig(
+        perplexity_model="claude50sonnet",
+        description="Claude Sonnet 5",
     ),
-    "claude-sonnet-4-5-thinking": ModelConfig(
-        perplexity_model="claude45sonnetthinking",
-        description="Claude 4.5 Sonnet with Reasoning",
+    "claude-sonnet-5-thinking": ModelConfig(
+        perplexity_model="claude50sonnetthinking",
+        description="Claude Sonnet 5 with Reasoning (default)",
     ),
-    "claude-4.5-sonnet-thinking": ModelConfig(
-        perplexity_model="claude45sonnetthinking",
-        description="Claude 4.5 Sonnet with Reasoning",
+    "claude50sonnetthinking": ModelConfig(
+        perplexity_model="claude50sonnetthinking",
+        description="Claude Sonnet 5 with Reasoning",
     ),
-    "claude45sonnetthinking": ModelConfig(
-        perplexity_model="claude45sonnetthinking",
-        description="Claude 4.5 Sonnet with Reasoning",
+    "claude-opus-5": ModelConfig(
+        perplexity_model="claude50opus",
+        description="Claude Opus 5",
     ),
-    # Claude 4.6 Sonnet
-    "claude-4.6-sonnet-thinking": ModelConfig(
-        perplexity_model="claude46sonnetthinking",
-        description="Claude 4.6 Sonnet with Reasoning (recommended)",
+    "claude50opus": ModelConfig(
+        perplexity_model="claude50opus",
+        description="Claude Opus 5",
     ),
-    "claude-sonnet-4-6-thinking": ModelConfig(
-        perplexity_model="claude46sonnetthinking",
-        description="Claude 4.6 Sonnet with Reasoning",
+    "claude-opus-5-thinking": ModelConfig(
+        perplexity_model="claude50opusthinking",
+        description="Claude Opus 5 with Reasoning",
     ),
-    "claude46sonnetthinking": ModelConfig(
-        perplexity_model="claude46sonnetthinking",
-        description="Claude 4.6 Sonnet with Reasoning",
-    ),
-    # Claude 4.5 Opus
-    "claude-4.5-opus": ModelConfig(
-        perplexity_model="claude45opus",
-        description="Claude 4.5 Opus",
-    ),
-    "claude45opus": ModelConfig(
-        perplexity_model="claude45opus",
-        description="Claude 4.5 Opus",
-    ),
-    "claude-opus-4-5-thinking": ModelConfig(
-        perplexity_model="claude45opusthinking",
-        description="Claude 4.5 Opus with Reasoning",
-    ),
-    "claude-4.5-opus-thinking": ModelConfig(
-        perplexity_model="claude45opusthinking",
-        description="Claude 4.5 Opus with Reasoning",
-    ),
-    "claude45opusthinking": ModelConfig(
-        perplexity_model="claude45opusthinking",
-        description="Claude 4.5 Opus with Reasoning",
+    "claude50opusthinking": ModelConfig(
+        perplexity_model="claude50opusthinking",
+        description="Claude Opus 5 with Reasoning",
     ),
     # =========================================================================
-    # Gemini Models
+    # GPT (OpenAI) - current: 5.6 Terra, 5.6 Sol
     # =========================================================================
-    "gemini-3-flash": ModelConfig(
-        perplexity_model="gemini30flash",
-        description="Gemini 3 Flash",
+    "gpt-5.6-terra": ModelConfig(
+        perplexity_model="gpt56_terra",
+        description="GPT-5.6 Terra",
     ),
-    "gemini30flash": ModelConfig(
-        perplexity_model="gemini30flash",
-        description="Gemini 3 Flash",
+    "gpt56_terra": ModelConfig(
+        perplexity_model="gpt56_terra",
+        description="GPT-5.6 Terra",
     ),
-    "gemini-3-flash-thinking": ModelConfig(
-        perplexity_model="gemini30flash_high",
-        description="Gemini 3 Flash with Reasoning",
+    "gpt-5.6-terra-thinking": ModelConfig(
+        perplexity_model="gpt56_terra_thinking",
+        description="GPT-5.6 Terra with Reasoning",
     ),
-    "gemini30flash_high": ModelConfig(
-        perplexity_model="gemini30flash_high",
-        description="Gemini 3 Flash with Reasoning",
+    "gpt56_terra_thinking": ModelConfig(
+        perplexity_model="gpt56_terra_thinking",
+        description="GPT-5.6 Terra with Reasoning",
     ),
-    "gemini-3-pro": ModelConfig(
-        perplexity_model="gemini30pro",
-        description="Gemini Pro with Reasoning",
+    "gpt-5.6-sol": ModelConfig(
+        perplexity_model="gpt56_sol",
+        description="GPT-5.6 Sol - OpenAI's most powerful model",
     ),
-    "gemini30pro": ModelConfig(
-        perplexity_model="gemini30pro",
-        description="Gemini Pro with Reasoning",
+    "gpt56_sol": ModelConfig(
+        perplexity_model="gpt56_sol",
+        description="GPT-5.6 Sol - OpenAI's most powerful model",
     ),
-    # =========================================================================
-    # GPT Models
-    # =========================================================================
-    "gpt-5.2": ModelConfig(
-        perplexity_model="gpt52",
-        description="GPT 5.2",
+    "gpt-5.6-sol-thinking": ModelConfig(
+        perplexity_model="gpt56_sol_thinking",
+        description="GPT-5.6 Sol with Reasoning",
     ),
-    "gpt52": ModelConfig(
-        perplexity_model="gpt52",
-        description="GPT 5.2",
-    ),
-    "gpt-5.2-thinking": ModelConfig(
-        perplexity_model="gpt52_thinking",
-        description="GPT 5.2 with Reasoning",
-    ),
-    "gpt52_thinking": ModelConfig(
-        perplexity_model="gpt52_thinking",
-        description="GPT 5.2 with Reasoning",
+    "gpt56_sol_thinking": ModelConfig(
+        perplexity_model="gpt56_sol_thinking",
+        description="GPT-5.6 Sol with Reasoning",
     ),
     # Legacy OpenAI compatibility mappings
     "gpt-4": ModelConfig(
-        perplexity_model="gpt52",
-        description="GPT-4 compatibility (maps to GPT 5.2)",
+        perplexity_model="gpt56_terra",
+        description="GPT-4 compatibility (maps to GPT-5.6 Terra)",
     ),
     "gpt-4o": ModelConfig(
-        perplexity_model="gpt52",
-        description="GPT-4o compatibility (maps to GPT 5.2)",
+        perplexity_model="gpt56_terra",
+        description="GPT-4o compatibility (maps to GPT-5.6 Terra)",
     ),
     "gpt-4-turbo": ModelConfig(
-        perplexity_model="gpt52",
-        description="GPT-4 Turbo compatibility (maps to GPT 5.2)",
+        perplexity_model="gpt56_terra",
+        description="GPT-4 Turbo compatibility (maps to GPT-5.6 Terra)",
     ),
     "gpt-3.5-turbo": ModelConfig(
         perplexity_model="pplx_alpha",
         description="GPT-3.5 compatibility (maps to Perplexity Alpha)",
     ),
     # =========================================================================
-    # Grok Models
+    # Gemini (Google) - current: 3.1 Pro
     # =========================================================================
-    "grok-4.1": ModelConfig(
-        perplexity_model="grok41nonreasoning",
-        description="Grok 4.1",
+    "gemini-3.1-pro": ModelConfig(
+        perplexity_model="gemini31pro_low",
+        description="Gemini 3.1 Pro",
     ),
-    "grok41": ModelConfig(
-        perplexity_model="grok41nonreasoning",
-        description="Grok 4.1",
+    "gemini31pro_low": ModelConfig(
+        perplexity_model="gemini31pro_low",
+        description="Gemini 3.1 Pro",
     ),
-    "grok41nonreasoning": ModelConfig(
-        perplexity_model="grok41nonreasoning",
-        description="Grok 4.1",
+    "gemini-3.1-pro-thinking": ModelConfig(
+        perplexity_model="gemini31pro_high",
+        description="Gemini 3.1 Pro with Reasoning",
     ),
-    "grok-4.1-thinking": ModelConfig(
-        perplexity_model="grok41reasoning",
-        description="Grok 4.1 with Reasoning",
-    ),
-    "grok41reasoning": ModelConfig(
-        perplexity_model="grok41reasoning",
-        description="Grok 4.1 with Reasoning",
+    "gemini31pro_high": ModelConfig(
+        perplexity_model="gemini31pro_high",
+        description="Gemini 3.1 Pro with Reasoning",
     ),
     # =========================================================================
-    # Kimi Models
+    # Grok (xAI) - current: 4.5
     # =========================================================================
-    "kimi-k2.5": ModelConfig(
-        perplexity_model="kimik25thinking",
-        description="Kimi K2.5 Thinking",
+    "grok-4.5": ModelConfig(
+        perplexity_model="grok45low",
+        description="Grok 4.5",
     ),
-    "kimi-k2.5-thinking": ModelConfig(
-        perplexity_model="kimik25thinking",
-        description="Kimi K2.5 Thinking",
+    "grok45low": ModelConfig(
+        perplexity_model="grok45low",
+        description="Grok 4.5",
     ),
-    "kimik25thinking": ModelConfig(
-        perplexity_model="kimik25thinking",
-        description="Kimi K2.5 Thinking",
+    "grok-4.5-thinking": ModelConfig(
+        perplexity_model="grok45medium",
+        description="Grok 4.5 with Reasoning",
+    ),
+    "grok45medium": ModelConfig(
+        perplexity_model="grok45medium",
+        description="Grok 4.5 with Reasoning",
+    ),
+    # =========================================================================
+    # Kimi (Moonshot) - current: K3
+    # =========================================================================
+    "kimi-k3": ModelConfig(
+        perplexity_model="kimik3thinking",
+        description="Kimi K3 (Thinking)",
+    ),
+    "kimi-k3-thinking": ModelConfig(
+        perplexity_model="kimik3thinking",
+        description="Kimi K3 (Thinking)",
+    ),
+    "kimik3thinking": ModelConfig(
+        perplexity_model="kimik3thinking",
+        description="Kimi K3 (Thinking)",
+    ),
+    # =========================================================================
+    # GLM (Z.ai) - current: 5.2
+    # =========================================================================
+    "glm-5.2": ModelConfig(
+        perplexity_model="glm_5_2",
+        description="GLM 5.2 (Thinking)",
+    ),
+    "glm_5_2": ModelConfig(
+        perplexity_model="glm_5_2",
+        description="GLM 5.2 (Thinking)",
+    ),
+    # =========================================================================
+    # Nemotron (NVIDIA) - current: 3 Ultra / 3 Super
+    # =========================================================================
+    "nemotron-3-ultra": ModelConfig(
+        perplexity_model="nv_nemotron_3_ultra",
+        description="Nemotron 3 Ultra 550B",
+    ),
+    "nv_nemotron_3_ultra": ModelConfig(
+        perplexity_model="nv_nemotron_3_ultra",
+        description="Nemotron 3 Ultra 550B",
+    ),
+    "nemotron-3-super": ModelConfig(
+        perplexity_model="nv_nemotron_3_super",
+        description="Nemotron 3 Super 120B",
+    ),
+    "nv_nemotron_3_super": ModelConfig(
+        perplexity_model="nv_nemotron_3_super",
+        description="Nemotron 3 Super 120B",
     ),
 }
 
 # Default model when unknown model is requested
-DEFAULT_MODEL = "claude46sonnetthinking"
+DEFAULT_MODEL = "gpt56_terra_thinking"
 DEFAULT_MODE = "copilot"
 DEFAULT_SEARCH_FOCUS = "internet"
 

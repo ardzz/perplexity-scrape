@@ -21,7 +21,7 @@ class Config:
     rest_api_port: int = 8045
 
     # Perplexity defaults
-    default_model: str = "claude45sonnetthinking"
+    default_model: str = "gpt56_terra_thinking"
     default_mode: str = "copilot"
     default_search_focus: str = "internet"
 
@@ -48,7 +48,7 @@ class Config:
         return cls(
             rest_api_host=os.getenv("REST_API_HOST", "127.0.0.1"),
             rest_api_port=int(os.getenv("REST_API_PORT", "8045")),
-            default_model=os.getenv("DEFAULT_MODEL", "claude45sonnetthinking"),
+            default_model=os.getenv("DEFAULT_MODEL", "gpt56_terra_thinking"),
             default_mode=os.getenv("DEFAULT_MODE", "copilot"),
             default_search_focus=os.getenv("DEFAULT_SEARCH_FOCUS", "internet"),
             api_key=os.getenv("API_KEY", ""),

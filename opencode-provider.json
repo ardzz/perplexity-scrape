@@ -7,7 +7,7 @@
     },
     "models": {
       "sonar": {
-        "name": "Sonar (Experimental)",
+        "name": "Sonar 2",
         "limit": {
           "context": 128000,
           "output": 16384
@@ -17,8 +17,8 @@
           "output": ["text"]
         }
       },
-      "claude45sonnet": {
-        "name": "Claude 4.5 Sonnet",
+      "claude50sonnet": {
+        "name": "Claude Sonnet 5",
         "limit": {
           "context": 200000,
           "output": 64000
@@ -28,8 +28,8 @@
           "output": ["text"]
         }
       },
-      "claude45sonnetthinking": {
-        "name": "Claude 4.5 Sonnet + Reasoning",
+      "claude50sonnetthinking": {
+        "name": "Claude Sonnet 5 + Reasoning",
         "thinking": true,
         "limit": {
           "context": 200000,
@@ -40,8 +40,8 @@
           "output": ["text"]
         }
       },
-      "claude45opus": {
-        "name": "Claude 4.5 Opus",
+      "claude50opus": {
+        "name": "Claude Opus 5",
         "limit": {
           "context": 200000,
           "output": 64000
@@ -51,8 +51,8 @@
           "output": ["text"]
         }
       },
-      "claude45opusthinking": {
-        "name": "Claude 4.5 Opus + Reasoning",
+      "claude50opusthinking": {
+        "name": "Claude Opus 5 + Reasoning",
         "thinking": true,
         "limit": {
           "context": 200000,
@@ -63,8 +63,54 @@
           "output": ["text"]
         }
       },
-      "gemini30flash": {
-        "name": "Gemini 3 Flash",
+      "gpt56_terra": {
+        "name": "GPT-5.6 Terra",
+        "limit": {
+          "context": 256000,
+          "output": 64000
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "gpt56_terra_thinking": {
+        "name": "GPT-5.6 Terra + Reasoning",
+        "thinking": true,
+        "limit": {
+          "context": 256000,
+          "output": 64000
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "gpt56_sol": {
+        "name": "GPT-5.6 Sol",
+        "limit": {
+          "context": 256000,
+          "output": 64000
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "gpt56_sol_thinking": {
+        "name": "GPT-5.6 Sol + Reasoning",
+        "thinking": true,
+        "limit": {
+          "context": 256000,
+          "output": 64000
+        },
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        }
+      },
+      "gemini31pro_low": {
+        "name": "Gemini 3.1 Pro",
         "limit": {
           "context": 1048576,
           "output": 65536
@@ -74,8 +120,8 @@
           "output": ["text"]
         }
       },
-      "gemini30flash_high": {
-        "name": "Gemini 3 Flash + Reasoning",
+      "gemini31pro_high": {
+        "name": "Gemini 3.1 Pro + Reasoning",
         "thinking": true,
         "limit": {
           "context": 1048576,
@@ -86,22 +132,10 @@
           "output": ["text"]
         }
       },
-      "gemini30pro": {
-        "name": "Gemini 3 Pro + Reasoning",
-        "thinking": true,
+      "grok45low": {
+        "name": "Grok 4.5",
         "limit": {
-          "context": 1048576,
-          "output": 65535
-        },
-        "modalities": {
-          "input": ["text"],
-          "output": ["text"]
-        }
-      },
-      "gpt52": {
-        "name": "GPT-5.2",
-        "limit": {
-          "context": 128000,
+          "context": 256000,
           "output": 32768
         },
         "modalities": {
@@ -109,11 +143,11 @@
           "output": ["text"]
         }
       },
-      "gpt52_thinking": {
-        "name": "GPT-5.2 + Reasoning",
+      "grok45medium": {
+        "name": "Grok 4.5 + Reasoning",
         "thinking": true,
         "limit": {
-          "context": 128000,
+          "context": 256000,
           "output": 32768
         },
         "modalities": {
@@ -121,10 +155,11 @@
           "output": ["text"]
         }
       },
-      "grok41nonreasoning": {
-        "name": "Grok 4.1",
+      "kimik3thinking": {
+        "name": "Kimi K3 (Thinking)",
+        "thinking": true,
         "limit": {
-          "context": 128000,
+          "context": 256000,
           "output": 32768
         },
         "modalities": {
@@ -132,11 +167,11 @@
           "output": ["text"]
         }
       },
-      "grok41reasoning": {
-        "name": "Grok 4.1 + Reasoning",
+      "glm_5_2": {
+        "name": "GLM 5.2 (Thinking)",
         "thinking": true,
         "limit": {
-          "context": 128000,
+          "context": 200000,
           "output": 32768
         },
         "modalities": {
@@ -144,9 +179,8 @@
           "output": ["text"]
         }
       },
-      "kimik25thinking": {
-        "name": "Kimi K2.5 Thinking",
-        "thinking": true,
+      "nv_nemotron_3_ultra": {
+        "name": "Nemotron 3 Ultra",
         "limit": {
           "context": 128000,
           "output": 32768

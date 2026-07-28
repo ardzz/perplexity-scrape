@@ -411,7 +411,7 @@ class TestBuildPayload:
         client = self._create_client()
         payload = client._build_payload("test")
 
-        assert payload["params"]["model_preference"] == "claude46sonnetthinking"
+        assert payload["params"]["model_preference"] == "gpt56_terra_thinking"
 
     def test_build_payload_params_includes_search_focus(self):
         """Test that params includes search_focus."""

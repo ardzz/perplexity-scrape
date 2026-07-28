@@ -91,7 +91,7 @@ class PerplexityClient:
         self,
         query: str,
         mode: str = "copilot",
-        model_preference: str = "claude46sonnetthinking",
+        model_preference: str = "gpt56_terra_thinking",
         search_focus: str = "internet",
         sources: Optional[list[str]] = None,
         language: str = "en-US",
@@ -207,7 +207,7 @@ class PerplexityClient:
         self,
         query: str,
         mode: str = "copilot",
-        model_preference: str = "claude46sonnetthinking",
+        model_preference: str = "gpt56_terra_thinking",
         search_focus: str = "internet",
         sources: Optional[list[str]] = None,
         is_incognito: bool = False,
@@ -275,7 +275,7 @@ class PerplexityClient:
         self,
         query: str,
         mode: str = "copilot",
-        model_preference: str = "claude46sonnetthinking",
+        model_preference: str = "gpt56_terra_thinking",
         search_focus: str = "internet",
         sources: Optional[list[str]] = None,
         is_incognito: bool = False,
@@ -407,7 +407,7 @@ class PerplexityClient:
 def perplexity_search(
     query: str,
     mode: str = "copilot",
-    model_preference: str = "claude46sonnetthinking",
+    model_preference: str = "gpt56_terra_thinking",
 ) -> str:
     """
     Simple function to search using Perplexity.

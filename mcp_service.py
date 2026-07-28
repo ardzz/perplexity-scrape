@@ -61,7 +61,7 @@ transport_security = get_transport_security()
 mcp = FastMCP("Perplexity Search", transport_security=transport_security)
 _client: Optional[PerplexityClient] = None
 
-DEFAULT_MODEL = "claude46sonnetthinking"
+DEFAULT_MODEL = "gpt56_terra_thinking"
 
 ResearchCategory = Literal[
     "academic",

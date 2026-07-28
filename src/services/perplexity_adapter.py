@@ -11,6 +11,10 @@ from src.core.perplexity_client import PerplexityClient
 from src.models.openai_models import ChatMessage, MessageRole
 from src.models.model_mapping import get_model_config, ModelConfig
 from src.services.chunk_extractor import ChunkExtractor
+from src.services.answer_enrichment import (
+    extract_enrichment,
+    format_enrichment_markdown,
+)
 from src.models.perplexity_models import StreamingState
 
 logger = logging.getLogger(__name__)
@@ -107,7 +111,11 @@ class PerplexityAdapter:
             is_incognito=True,  # MANDATORY for REST API
         )
 
-        return response.text, config.perplexity_model
+        text = response.text
+        enrichment = extract_enrichment(getattr(response, "raw_events", None))
+        text += format_enrichment_markdown(enrichment)
+
+        return text, config.perplexity_model
 
     def stream(
         self,
@@ -139,6 +147,7 @@ class PerplexityAdapter:
         def chunk_generator():
             """Synchronous generator that yields text chunks."""
             extractor = ChunkExtractor()
+            events = []
 
             for event_data in self._client.ask_stream(
                 query=query,
@@ -148,8 +157,13 @@ class PerplexityAdapter:
                 sources=config.sources,
                 is_incognito=True,  # MANDATORY for REST API
             ):
+                events.append(event_data)
                 for chunk in extractor.process_event(event_data):
                     if chunk:
                         yield chunk
+
+            section = format_enrichment_markdown(extract_enrichment(events))
+            if section:
+                yield section
 
         return chunk_generator(), config.perplexity_model

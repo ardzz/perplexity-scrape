@@ -1,6 +1,29 @@
 # CHANGELOG
 
 
+## v2.0.2 (2026-07-28)
+
+### Bug Fixes
+
+- Render contiguous release-notes table under semantic-release Jinja env
+  ([`60e2ca8`](https://github.com/ardzz/perplexity-scrape/commit/60e2ca832141b52e0125cbdf478c5bc3c8508a7e))
+
+PSR's Jinja env uses trim_blocks=False/lstrip_blocks=False, so the prior template leaked newlines
+  between table rows, breaking the GFM table (header became an empty table, data rows rendered as
+  literal text). Simplify change detection to release.elements truthiness and inline the row loops
+  so the table stays contiguous. Verified against python-semantic-release 9.15.2's env.
+
+### Chores
+
+- Declare runtime dependencies, pin mcp <2.0, add lockfile
+  ([`c1d49fa`](https://github.com/ardzz/perplexity-scrape/commit/c1d49fabbacd45f938caf11e75211d15a20fc7fd))
+
+- Declare project runtime dependencies in pyproject.toml and cap mcp[cli] <2.0.0 (2.0 removed
+  mcp.server.fastmcp), consistent with requirements.txt - Add uv.lock for reproducible resolution
+  (mcp pinned 1.27.2) - Ignore local .omc/ tooling state - Relax optional-credential assertions in
+  the integration test
+
+
 ## v2.0.1 (2026-07-28)
 
 ### Bug Fixes
@@ -13,6 +36,11 @@
   for-loop (loop-local scope) so it never escaped, making every release note say 'No changes in this
   release'; use a namespace flag and read item.descriptions[0] (singular item.description does not
   exist in PSR v9) - Update adapter tests to current model registry IDs
+
+### Chores
+
+- **release**: 2.0.1
+  ([`f8abc2f`](https://github.com/ardzz/perplexity-scrape/commit/f8abc2f4d8158f81566d509d1d1df9575c55d965))
 
 
 ## v2.0.0 (2026-07-28)

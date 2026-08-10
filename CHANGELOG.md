@@ -1,6 +1,25 @@
 # CHANGELOG
 
 
+## v2.0.3 (2026-08-10)
+
+### Bug Fixes
+
+- Handle current perplexity SSE responses
+  ([`39bdc10`](https://github.com/ardzz/perplexity-scrape/commit/39bdc10aef9996a4f10f35d2e91af69c5ef3cdfe))
+
+### Testing
+
+- Use fast search model in integration tests (pplx_alpha is now deep-research)
+  ([`679b1b6`](https://github.com/ardzz/perplexity-scrape/commit/679b1b66f17d9d7b9600085021abc25208808898))
+
+Perplexity repurposed pplx_alpha into a deep-research model (mode: research) that streams research
+  steps instead of markdown answer chunks, so the streaming test yielded 0 chunks and the REST test
+  got a truncated answer. Switch to experimental (Sonar 2, fast search) which the chunk extraction
+  handles, and refresh claude45sonnetthinking -> claude50sonnetthinking. These integration tests
+  only ran now because the mcp<2.0 fix unblocked the (previously skipped) integration-test job.
+
+
 ## v2.0.2 (2026-07-28)
 
 ### Bug Fixes
@@ -22,6 +41,9 @@ PSR's Jinja env uses trim_blocks=False/lstrip_blocks=False, so the prior templat
   mcp.server.fastmcp), consistent with requirements.txt - Add uv.lock for reproducible resolution
   (mcp pinned 1.27.2) - Ignore local .omc/ tooling state - Relax optional-credential assertions in
   the integration test
+
+- **release**: 2.0.2
+  ([`dc3511a`](https://github.com/ardzz/perplexity-scrape/commit/dc3511af18a2343f43631b8610f2c797a0bf6704))
 
 
 ## v2.0.1 (2026-07-28)

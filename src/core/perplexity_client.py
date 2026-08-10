@@ -6,12 +6,22 @@ Uses curl_cffi to bypass Cloudflare protection.
 """
 
 import json
+import logging
 import os
+import time
 import uuid
-from typing import Generator, Optional, Any
 from dataclasses import dataclass, field
-from dotenv import load_dotenv
+from typing import Any, Generator, Optional
+
 from curl_cffi import requests as cffi_requests
+from curl_cffi.const import CurlOpt
+from curl_cffi.requests.exceptions import Timeout as CurlTimeout
+from dotenv import load_dotenv
+
+from src.services.sse_parser import PerplexitySSEParser
+
+logger = logging.getLogger(__name__)
+DEFAULT_REQUEST_TIMEOUT_SECONDS = 1800.0
 
 
 @dataclass
@@ -23,6 +33,253 @@ class PerplexityResponse:
     media_items: list[dict] = field(default_factory=list)
     related_queries: list[str] = field(default_factory=list)
     raw_events: list[dict] = field(default_factory=list)
+    partial: bool = False
+    warning: Optional[str] = None
+
+
+def _add_citations(
+    response: PerplexityResponse,
+    web_results: Any,
+    seen_urls: set[str],
+) -> None:
+    """Append valid web citations once, keyed by URL."""
+    if not isinstance(web_results, list):
+        return
+
+    for web_result in web_results:
+        if not isinstance(web_result, dict):
+            continue
+        title = web_result.get("name", "")
+        url = web_result.get("url", "")
+        if not title or not url or url in seen_urls:
+            continue
+        seen_urls.add(url)
+        response.citations.append(
+            {
+                "title": title,
+                "url": url,
+                "snippet": web_result.get("snippet", ""),
+            }
+        )
+
+
+def _process_legacy_final(
+    event: dict,
+    response: PerplexityResponse,
+    seen_urls: set[str],
+) -> None:
+    """Parse the legacy nested FINAL event format."""
+    response.related_queries = event.get("related_queries", [])
+    text_json = event.get("text", "")
+    if not text_json:
+        return
+
+    try:
+        steps = json.loads(text_json)
+    except (json.JSONDecodeError, TypeError):
+        return
+    if not isinstance(steps, list):
+        return
+
+    for step in steps:
+        if not isinstance(step, dict):
+            continue
+        content = step.get("content", {})
+        if not isinstance(content, dict):
+            continue
+
+        if step.get("step_type") == "SEARCH_RESULTS":
+            _add_citations(response, content.get("web_results", []), seen_urls)
+
+        if step.get("step_type") == "FINAL":
+            answer_value = content.get("answer", "")
+            if isinstance(answer_value, str) and answer_value:
+                try:
+                    answer_data = json.loads(answer_value)
+                except json.JSONDecodeError:
+                    response.text = answer_value
+                else:
+                    if isinstance(answer_data, dict):
+                        if isinstance(answer_data.get("answer"), str):
+                            response.text = answer_data["answer"]
+                        _add_citations(
+                            response,
+                            answer_data.get("web_results", []),
+                            seen_urls,
+                        )
+                        for item in answer_data.get("structured_answer", []):
+                            if (
+                                isinstance(item, dict)
+                                and item.get("type") == "markdown"
+                                and isinstance(item.get("text"), str)
+                            ):
+                                response.text = item["text"]
+
+        for item in content.get("structured_answer", []):
+            if (
+                isinstance(item, dict)
+                and item.get("type") == "markdown"
+                and isinstance(item.get("text"), str)
+            ):
+                response.text = item["text"]
+
+
+def _set_chunk(chunks: list[str], index: int, value: Any) -> None:
+    """Set a streamed chunk by index, extending sparse snapshots safely."""
+    while len(chunks) <= index:
+        chunks.append("")
+    chunks[index] = str(value) if value is not None else ""
+
+
+def _process_answer_block(
+    block: dict,
+    chunk_state: dict[str, list[str]],
+    answer_state: dict[str, str],
+) -> bool:
+    """Apply a current or legacy answer block and report completion."""
+    intended_usage = block.get("intended_usage", "")
+    if not PerplexitySSEParser.is_markdown_block(intended_usage):
+        return False
+
+    complete = False
+    has_direct_answer = False
+    markdown = block.get("markdown_block")
+    if isinstance(markdown, dict):
+        answer = markdown.get("answer")
+        chunks = markdown.get("chunks")
+        if isinstance(answer, str) and answer:
+            answer_state[intended_usage] = answer
+            has_direct_answer = True
+        elif isinstance(chunks, list):
+            chunk_state[intended_usage] = [str(chunk) for chunk in chunks]
+        complete = markdown.get("progress") == "DONE"
+
+    diff_block = block.get("diff_block")
+    if not isinstance(diff_block, dict):
+        return complete and intended_usage in ("ask_text", "ask_text_markdown")
+
+    for patch in diff_block.get("patches", []):
+        if not isinstance(patch, dict):
+            continue
+        path = patch.get("path", "")
+        value = patch.get("value")
+        op = patch.get("op")
+
+        if path == "" and isinstance(value, dict):
+            complete = complete or value.get("progress") == "DONE"
+            if has_direct_answer:
+                continue
+            answer = value.get("answer")
+            chunks = value.get("chunks")
+            if isinstance(answer, str) and answer:
+                answer_state[intended_usage] = answer
+            elif isinstance(chunks, list):
+                chunk_state[intended_usage] = [str(chunk) for chunk in chunks]
+        elif path == "/progress":
+            complete = complete or value == "DONE"
+        elif (
+            not has_direct_answer
+            and path == "/answer"
+            and isinstance(value, str)
+            and value
+        ):
+            answer_state[intended_usage] = value
+        elif (
+            not has_direct_answer
+            and path.startswith("/chunks/")
+            and op in ("add", "replace")
+        ):
+            try:
+                index = int(path.rsplit("/", 1)[-1])
+            except ValueError:
+                continue
+            chunks = chunk_state.setdefault(intended_usage, [])
+            _set_chunk(chunks, index, value)
+
+    return complete and intended_usage in ("ask_text", "ask_text_markdown")
+
+
+def _current_answer_text(
+    chunk_state: dict[str, list[str]],
+    answer_state: dict[str, str],
+) -> str:
+    """Choose the combined answer, falling back to ordered section blocks."""
+
+    def block_text(intended_usage: str) -> str:
+        return answer_state.get(intended_usage) or "".join(
+            chunk_state.get(intended_usage, [])
+        )
+
+    for combined_usage in ("ask_text", "ask_text_markdown"):
+        text = block_text(combined_usage)
+        if text:
+            return text
+
+    def section_sort_key(intended_usage: str) -> tuple[int, int, str]:
+        section = intended_usage.removeprefix("ask_text_").removesuffix("_markdown")
+        try:
+            return (0, int(section), intended_usage)
+        except ValueError:
+            return (1, 0, intended_usage)
+
+    section_usages = sorted(
+        (
+            usage
+            for usage in set(chunk_state) | set(answer_state)
+            if usage.startswith("ask_text_") and usage.endswith("_markdown")
+        ),
+        key=section_sort_key,
+    )
+    return "".join(block_text(usage) for usage in section_usages)
+
+
+def _process_current_blocks(
+    event: dict,
+    response: PerplexityResponse,
+    chunk_state: dict[str, list[str]],
+    answer_state: dict[str, str],
+    seen_urls: set[str],
+) -> bool:
+    """Parse current block-only events and report terminal answer progress."""
+    complete = False
+    for block in event.get("blocks", []) or []:
+        if not isinstance(block, dict):
+            continue
+        intended_usage = block.get("intended_usage", "")
+
+        if intended_usage == "web_results":
+            direct_results = block.get("web_results")
+            _add_citations(response, direct_results, seen_urls)
+            direct_block = block.get("web_result_block")
+            if isinstance(direct_block, dict):
+                _add_citations(
+                    response,
+                    direct_block.get("web_results", []),
+                    seen_urls,
+                )
+            diff_block = block.get("diff_block")
+            if isinstance(diff_block, dict):
+                for patch in diff_block.get("patches", []):
+                    if not isinstance(patch, dict):
+                        continue
+                    value = patch.get("value")
+                    if isinstance(value, dict):
+                        _add_citations(
+                            response,
+                            value.get("web_results", []),
+                            seen_urls,
+                        )
+                        if patch.get("path", "").startswith("/web_results/"):
+                            _add_citations(response, [value], seen_urls)
+                    elif isinstance(value, list):
+                        _add_citations(response, value, seen_urls)
+
+        complete = _process_answer_block(block, chunk_state, answer_state) or complete
+
+    current_text = _current_answer_text(chunk_state, answer_state)
+    if current_text:
+        response.text = current_text
+    return complete
 
 
 class PerplexityClient:
@@ -211,6 +468,7 @@ class PerplexityClient:
         search_focus: str = "internet",
         sources: Optional[list[str]] = None,
         is_incognito: bool = False,
+        timeout_seconds: float = DEFAULT_REQUEST_TIMEOUT_SECONDS,
     ) -> Generator[dict, None, None]:
         """
         Send a query to Perplexity and stream the response.
@@ -222,6 +480,7 @@ class PerplexityClient:
             search_focus: Search focus (internet, academic, etc.)
             sources: List of sources to search
             is_incognito: If True, query won't appear in Perplexity dashboard
+            timeout_seconds: Upstream inactivity timeout in seconds
 
         Yields:
             Parsed SSE event dictionaries
@@ -247,29 +506,32 @@ class PerplexityClient:
             cookies=cookies,
             json=payload,
             impersonate="edge",
-            timeout=1800,
+            timeout=timeout_seconds,
+            curl_options={CurlOpt.TIMEOUT_MS: int(timeout_seconds * 1000)},
             stream=True,
         )
+        try:
+            if response.status_code != 200:
+                raise Exception(
+                    f"Request failed with status {response.status_code}: {response.text}"
+                )
 
-        if response.status_code != 200:
-            raise Exception(
-                f"Request failed with status {response.status_code}: {response.text}"
-            )
+            # Parse SSE stream
+            buffer = ""
+            for chunk in response.iter_content():
+                if chunk:
+                    buffer += chunk.decode("utf-8", errors="ignore")
 
-        # Parse SSE stream
-        buffer = ""
-        for chunk in response.iter_content():
-            if chunk:
-                buffer += chunk.decode("utf-8", errors="ignore")
+                    while "\n" in buffer:
+                        line, buffer = buffer.split("\n", 1)
+                        line = line.strip()
 
-                while "\n" in buffer:
-                    line, buffer = buffer.split("\n", 1)
-                    line = line.strip()
-
-                    if line.startswith("data:"):
-                        event = self._parse_sse_line(line)
-                        if event:
-                            yield event
+                        if line.startswith("data:"):
+                            event = self._parse_sse_line(line)
+                            if event:
+                                yield event
+        finally:
+            response.close()
 
     def ask(
         self,
@@ -279,6 +541,7 @@ class PerplexityClient:
         search_focus: str = "internet",
         sources: Optional[list[str]] = None,
         is_incognito: bool = False,
+        timeout_seconds: float = DEFAULT_REQUEST_TIMEOUT_SECONDS,
     ) -> PerplexityResponse:
         """
         Send a query to Perplexity and return the complete response.
@@ -290,115 +553,82 @@ class PerplexityClient:
             search_focus: Search focus (internet, academic, etc.)
             sources: List of sources to search
             is_incognito: If True, query won't appear in Perplexity dashboard
+            timeout_seconds: Maximum total request time in seconds
 
         Returns:
             PerplexityResponse with parsed results
         """
         result = PerplexityResponse()
-
-        for event in self.ask_stream(
+        chunk_state: dict[str, list[str]] = {}
+        answer_state: dict[str, str] = {}
+        seen_urls: set[str] = set()
+        started_at = time.monotonic()
+        deadline = started_at + timeout_seconds
+        termination = "stream_ended"
+        stream = self.ask_stream(
             query=query,
             mode=mode,
             model_preference=model_preference,
             search_focus=search_focus,
             sources=sources,
             is_incognito=is_incognito,
-        ):
-            result.raw_events.append(event)
+            timeout_seconds=timeout_seconds,
+        )
 
-            step_type = event.get("step_type", "")
+        try:
+            for event in stream:
+                if not isinstance(event, dict):
+                    continue
+                result.raw_events.append(event)
 
-            # Handle FINAL event - contains the complete response as nested JSON
-            if step_type == "FINAL":
-                # Get related queries from top level
-                result.related_queries = event.get("related_queries", [])
+                step_type = event.get("step_type", "")
+                if step_type == "FINAL":
+                    _process_legacy_final(event, result, seen_urls)
 
-                # Parse the nested text field which contains all step data as JSON
-                text_json = event.get("text", "")
-                if text_json:
-                    try:
-                        steps = json.loads(text_json)
-                        for step in steps:
-                            step_content = step.get("content", {})
-                            inner_step_type = step.get("step_type", "")
+                block_complete = _process_current_blocks(
+                    event,
+                    result,
+                    chunk_state,
+                    answer_state,
+                    seen_urls,
+                )
 
-                            # Extract citations from SEARCH_RESULTS
-                            if inner_step_type == "SEARCH_RESULTS":
-                                web_results = step_content.get("web_results", [])
-                                for wr in web_results:
-                                    if wr.get("name") and wr.get("url"):
-                                        result.citations.append(
-                                            {
-                                                "title": wr.get("name", ""),
-                                                "url": wr.get("url", ""),
-                                                "snippet": wr.get("snippet", ""),
-                                            }
-                                        )
-
-                            # Extract answer from inner FINAL step
-                            if inner_step_type == "FINAL":
-                                answer_str = step_content.get("answer", "")
-                                if answer_str:
-                                    try:
-                                        answer_data = json.loads(answer_str)
-                                        if "answer" in answer_data:
-                                            result.text = answer_data["answer"]
-                                        # Also extract citations from web_results in answer
-                                        for wr in answer_data.get(
-                                            "web_results", []
-                                        ):
-                                            if wr.get("name") and wr.get("url"):
-                                                result.citations.append(
-                                                    {
-                                                        "title": wr.get("name", ""),
-                                                        "url": wr.get("url", ""),
-                                                        "snippet": wr.get(
-                                                            "snippet", ""
-                                                        ),
-                                                    }
-                                                )
-                                        # Extract from structured_answer
-                                        for item in answer_data.get(
-                                            "structured_answer", []
-                                        ):
-                                            if (
-                                                item.get("type") == "markdown"
-                                                and item.get("text")
-                                            ):
-                                                result.text = item["text"]
-                                    except json.JSONDecodeError:
-                                        # answer might be plain text
-                                        result.text = answer_str
-
-                            # Also check for structured_answer in other steps
-                            if "structured_answer" in step_content:
-                                for item in step_content.get("structured_answer", []):
-                                    if item.get("type") == "markdown" and item.get(
-                                        "text"
-                                    ):
-                                        result.text = item["text"]
-                    except json.JSONDecodeError:
-                        pass
-
-            # Handle streaming blocks with text chunks (fallback if no FINAL)
-            if not step_type and not result.text:
-                blocks = event.get("blocks", [])
-                for block in blocks:
-                    if block.get("intended_usage") in (
-                        "ask_text_0_markdown",
-                        "ask_text",
-                    ):
-                        diff_block = block.get("diff_block", {})
-                        patches = diff_block.get("patches", [])
-                        for patch in patches:
-                            if patch.get("op") == "replace" and patch.get("value"):
-                                value = patch["value"]
-                                if isinstance(value, dict) and value.get("chunks"):
-                                    result.text = "".join(value["chunks"])
-                            elif patch.get("op") == "add" and patch.get("value"):
-                                # Append chunk
-                                if result.text:
-                                    result.text += patch["value"]
+                if step_type == "FINAL" or event.get("text_completed") is True:
+                    termination = "completed"
+                    break
+                if block_complete:
+                    termination = "answer_done"
+                    break
+                if time.monotonic() >= deadline:
+                    raise CurlTimeout(
+                        f"Perplexity request exceeded {timeout_seconds:g} seconds"
+                    )
+        except CurlTimeout as error:
+            if not result.text:
+                raise CurlTimeout(
+                    "Perplexity request timed out with no answer text received "
+                    f"within {timeout_seconds:g} seconds"
+                ) from error
+            result.partial = True
+            result.warning = (
+                f"Timed out after {timeout_seconds:g} seconds; "
+                "returning partial answer."
+            )
+            termination = "timeout_partial"
+        finally:
+            close = getattr(stream, "close", None)
+            if callable(close):
+                close()
+            logger.info(
+                "Perplexity request finished model=%s mode=%s duration=%.2fs "
+                "events=%d termination=%s partial=%s",
+                model_preference,
+                mode,
+                time.monotonic() - started_at,
+                len(result.raw_events),
+                termination,
+                result.partial,
+            )
 
         return result
 

@@ -5,21 +5,21 @@ Tests the ChunkExtractor class and extract_chunks_from_events function.
 Covers all public methods and edge cases with 90%+ coverage target.
 """
 
-import pytest
-from unittest.mock import Mock, MagicMock, patch
 from typing import Iterator, Optional
+from unittest.mock import MagicMock, Mock, patch
 
-from src.services.chunk_extractor import ChunkExtractor, extract_chunks_from_events
+import pytest
+
 from src.models.perplexity_models import (
-    PerplexitySSEEvent,
-    PerplexityBlock,
+    ChunkAggregator,
     DiffBlock,
     JSONPatch,
     MarkdownBlock,
-    ChunkAggregator,
+    PerplexityBlock,
+    PerplexitySSEEvent,
     StreamingState,
 )
-
+from src.services.chunk_extractor import ChunkExtractor, extract_chunks_from_events
 
 # ============================================================================
 # Fixtures
@@ -172,6 +172,29 @@ class TestChunkExtractorInit:
 
 class TestChunkExtractorProcessEvent:
     """Test ChunkExtractor.process_event() method."""
+
+    def test_process_current_direct_markdown_answer(self):
+        """A direct ask_text markdown snapshot must produce the final answer."""
+        extractor = ChunkExtractor()
+        event_data = {
+            "text_completed": False,
+            "blocks": [
+                {
+                    "intended_usage": "ask_text",
+                    "markdown_block": {
+                        "progress": "DONE",
+                        "chunks": ["stale chunk"],
+                        "answer": "Current schema answer",
+                    },
+                }
+            ],
+        }
+
+        chunks = list(extractor.process_event(event_data))
+
+        assert chunks == ["Current schema answer"]
+        assert extractor.get_full_text() == "Current schema answer"
+        assert extractor.is_complete() is True
 
     def test_process_event_with_markdown_blocks(self, perplexity_block_with_diff):
         """Test processing event with markdown blocks yields chunks."""

@@ -8,10 +8,8 @@ import logging
 from typing import Iterator, Optional
 
 from src.models.perplexity_models import (
-    PerplexitySSEEvent,
     PerplexityBlock,
     StreamingState,
-    ChunkAggregator,
 )
 from src.services.sse_parser import PerplexitySSEParser
 
@@ -73,11 +71,40 @@ class ChunkExtractor:
         Yields:
             Text chunks from the block's patches.
         """
-        if not block.diff_block:
-            return
-
         # Get or create aggregator for this block
         aggregator = self.state.get_or_create_aggregator(block.intended_usage)
+
+        # Current Perplexity responses send a complete markdown snapshot
+        # directly, without JSON patches. ``answer`` is authoritative when
+        # present; ``chunks`` remains the fallback for in-progress snapshots.
+        if block.markdown_block:
+            markdown = block.markdown_block
+            snapshot: Optional[str] = None
+            if markdown.answer:
+                snapshot = markdown.answer
+            elif markdown.chunks:
+                snapshot = "".join(markdown.chunks)
+
+            if snapshot is not None:
+                current = aggregator.get_full_text()
+                if snapshot != current:
+                    new_text = (
+                        snapshot[len(current) :]
+                        if snapshot.startswith(current)
+                        else snapshot
+                    )
+                    aggregator.chunks = [snapshot]
+                    if new_text:
+                        yield new_text
+
+            if markdown.progress == "DONE":
+                aggregator.is_complete = True
+
+            if snapshot is not None:
+                return
+
+        if not block.diff_block:
+            return
 
         # Apply each patch and yield new content
         for patch in block.diff_block.patches:

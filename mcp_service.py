@@ -7,8 +7,10 @@ An MCP server that provides Perplexity AI search capabilities.
 import logging
 import os
 from typing import Literal, Optional
+
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
+
 from src.core.perplexity_client import PerplexityClient
 from src.prompts import PROGRAMMING_RESEARCH_PROMPTS, VALID_CATEGORIES
 
@@ -62,6 +64,15 @@ mcp = FastMCP("Perplexity Search", transport_security=transport_security)
 _client: Optional[PerplexityClient] = None
 
 DEFAULT_MODEL = "gpt56_terra_thinking"
+SEARCH_TIMEOUT_SECONDS = 45.0
+RESEARCH_TIMEOUT_SECONDS = 180.0
+MIN_TIMEOUT_SECONDS = 5.0
+MAX_TIMEOUT_SECONDS = 600.0
+
+
+class EmptyResponseError(RuntimeError):
+    """Raised when upstream finishes without any usable answer text."""
+
 
 ResearchCategory = Literal[
     "academic",
@@ -102,12 +113,29 @@ def _build_response(
     include_related: bool,
 ) -> dict:
     """Build a response dict including only requested optional fields."""
-    result: dict = {"text": response.text or "No response received."}
+    if not response.text:
+        raise EmptyResponseError("Perplexity returned no answer text.")
+
+    result: dict = {"text": response.text}
     if include_citations:
         result["citations"] = response.citations
     if include_related:
         result["related_queries"] = response.related_queries
+    if response.partial:
+        result["partial"] = True
+        result["warning"] = response.warning or "Returning a partial answer."
     return result
+
+
+def _validate_timeout(timeout_seconds: float) -> float:
+    """Validate the bounded timeout exposed through MCP tool schemas."""
+    if isinstance(timeout_seconds, bool) or not isinstance(
+        timeout_seconds, (int, float)
+    ):
+        raise ValueError("timeout_seconds must be a number between 5 and 600")
+    if not MIN_TIMEOUT_SECONDS <= timeout_seconds <= MAX_TIMEOUT_SECONDS:
+        raise ValueError("timeout_seconds must be between 5 and 600 seconds")
+    return float(timeout_seconds)
 
 
 def _error_dict(error: Exception) -> dict:
@@ -124,7 +152,8 @@ def perplexity_search(
     include_citations: bool = False,
     include_related: bool = False,
     model_preference: str = DEFAULT_MODEL,
-    mode: Literal["copilot", "search"] = "copilot",
+    mode: Literal["copilot", "search"] = "search",
+    timeout_seconds: float = SEARCH_TIMEOUT_SECONDS,
 ) -> dict:
     """Search via Perplexity AI. Returns answer text; citations opt-in.
 
@@ -137,15 +166,16 @@ def perplexity_search(
         include_related: If True, include related query suggestions.
         model_preference: AI model to use.
         mode: "copilot" for comprehensive answers, "search" for quick results.
+        timeout_seconds: Maximum request time, from 5 to 600 seconds.
 
     Returns:
         Dict with "text" always present. "citations" and "related_queries"
         included only when their respective flags are True.
     """
-    selected_sources: list[str] = list(sources) if sources else ["web"]
-    search_focus = "academic" if selected_sources == ["scholar"] else "internet"
-
     try:
+        timeout = _validate_timeout(timeout_seconds)
+        selected_sources: list[str] = list(sources) if sources else ["web"]
+        search_focus = "academic" if selected_sources == ["scholar"] else "internet"
         client = get_client()
         response = client.ask(
             query=query,
@@ -153,6 +183,7 @@ def perplexity_search(
             model_preference=model_preference,
             search_focus=search_focus,
             sources=selected_sources,
+            timeout_seconds=timeout,
         )
         return _build_response(response, include_citations, include_related)
     except Exception as e:
@@ -166,6 +197,7 @@ def perplexity_research(
     include_citations: bool = False,
     include_related: bool = False,
     model_preference: str = DEFAULT_MODEL,
+    timeout_seconds: float = RESEARCH_TIMEOUT_SECONDS,
 ) -> dict:
     """Research a topic with category-specific prompts. Citations opt-in.
 
@@ -179,6 +211,7 @@ def perplexity_research(
         include_citations: If True, include source citations. Default False.
         include_related: If True, include related query suggestions.
         model_preference: AI model to use.
+        timeout_seconds: Maximum request time, from 5 to 600 seconds.
 
     Returns:
         Dict with "text" always present. "citations" and "related_queries"
@@ -192,6 +225,7 @@ def perplexity_research(
     research_prompt = prompt_template.format(topic=topic)
 
     try:
+        timeout = _validate_timeout(timeout_seconds)
         client = get_client()
         response = client.ask(
             query=research_prompt,
@@ -199,6 +233,7 @@ def perplexity_research(
             model_preference=model_preference,
             search_focus="internet",
             sources=["web", "scholar"],
+            timeout_seconds=timeout,
         )
         return _build_response(response, include_citations, include_related)
     except Exception as e:
@@ -210,6 +245,7 @@ if __name__ == "__main__":
 
     if config.mcp_transport_mode == "http":
         import uvicorn
+
         from src.core.mcp_auth import MCPAuthMiddleware
 
         app = mcp.streamable_http_app()

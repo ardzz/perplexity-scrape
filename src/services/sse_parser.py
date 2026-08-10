@@ -4,15 +4,14 @@ Perplexity SSE parser.
 Parses raw SSE events from Perplexity API and extracts structured blocks.
 """
 
-import json
 import logging
-from typing import Optional, Iterator
+from typing import Iterator, Optional
 
 from src.models.perplexity_models import (
-    PerplexitySSEEvent,
-    PerplexityBlock,
     DiffBlock,
     JSONPatch,
+    PerplexityBlock,
+    PerplexitySSEEvent,
 )
 
 logger = logging.getLogger(__name__)
@@ -104,6 +103,7 @@ class PerplexitySSEParser:
         Check if a block is a markdown answer block.
 
         Markdown answer blocks have intended_usage matching:
+        - "ask_text" (current combined answer)
         - "ask_text_markdown" (combined answer)
         - "ask_text_N_markdown" where N is a number (individual sections)
 
@@ -116,8 +116,8 @@ class PerplexitySSEParser:
         if not intended_usage:
             return False
 
-        # Match "ask_text_markdown" or "ask_text_N_markdown"
-        if intended_usage == "ask_text_markdown":
+        # Match the current plain block and legacy markdown block names.
+        if intended_usage in ("ask_text", "ask_text_markdown"):
             return True
         if intended_usage.startswith("ask_text_") and intended_usage.endswith(
             "_markdown"

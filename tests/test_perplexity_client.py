@@ -11,9 +11,12 @@ Tests cover:
 """
 
 import json
-import pytest
-from unittest.mock import patch, MagicMock
 from dataclasses import fields
+from unittest.mock import MagicMock, patch
+
+import pytest
+from curl_cffi.const import CurlOpt
+from curl_cffi.requests.exceptions import Timeout as CurlTimeout
 
 from src.core.perplexity_client import PerplexityClient, PerplexityResponse
 
@@ -836,6 +839,8 @@ class TestPerplexityResponse:
             "media_items",
             "related_queries",
             "raw_events",
+            "partial",
+            "warning",
         }
 
         assert field_names == expected_fields
@@ -900,6 +905,360 @@ class TestPerplexityClientIntegration:
 
         for key, value in headers.items():
             assert value is not None, f"Header {key} contains None"
+
+
+class TestCurrentSSEAnswerParsing:
+    """Regression tests for the current block-only Perplexity SSE schema."""
+
+    def _create_client(self):
+        env_vars = {"PERPLEXITY_SESSION_TOKEN": "test_session_token"}
+        with patch.dict("os.environ", env_vars, clear=True):
+            with patch("src.core.perplexity_client.load_dotenv"):
+                return PerplexityClient()
+
+    def test_direct_ask_text_answer_is_authoritative_and_stops_stream(self):
+        """A DONE ask_text.answer must win over chunks and stop consumption."""
+        client = self._create_client()
+        stream_closed = []
+
+        def events():
+            try:
+                yield {
+                    "blocks": [
+                        {
+                            "intended_usage": "ask_text",
+                            "markdown_block": {
+                                "progress": "DONE",
+                                "chunks": ["stale chunk"],
+                                "answer": "Current schema answer",
+                            },
+                        }
+                    ]
+                }
+                raise AssertionError("stream was consumed after terminal answer")
+            finally:
+                stream_closed.append(True)
+
+        with patch.object(client, "ask_stream", return_value=events()):
+            response = client.ask("question")
+
+        assert response.text == "Current schema answer"
+        assert response.partial is False
+        assert stream_closed == [True]
+
+    def test_direct_answer_wins_over_conflicting_diff_snapshot(self):
+        """A stale diff snapshot must never replace markdown_block.answer."""
+        client = self._create_client()
+        event = {
+            "blocks": [
+                {
+                    "intended_usage": "ask_text",
+                    "markdown_block": {
+                        "progress": "DONE",
+                        "chunks": ["stale chunk"],
+                        "answer": "Authoritative answer",
+                    },
+                    "diff_block": {
+                        "field": "markdown_block",
+                        "patches": [
+                            {
+                                "op": "replace",
+                                "path": "",
+                                "value": {
+                                    "progress": "DONE",
+                                    "chunks": ["stale diff chunk"],
+                                    "answer": "Stale diff answer",
+                                },
+                            }
+                        ],
+                    },
+                }
+            ]
+        }
+
+        with patch.object(client, "ask_stream", return_value=iter([event])):
+            response = client.ask("question")
+
+        assert response.text == "Authoritative answer"
+
+    def test_numbered_sections_wait_for_stream_completion_and_sort_numerically(self):
+        """DONE sections must not truncate later sections or sort 10 before 2."""
+        client = self._create_client()
+        events = iter(
+            [
+                {
+                    "blocks": [
+                        {
+                            "intended_usage": "ask_text_2_markdown",
+                            "markdown_block": {
+                                "progress": "DONE",
+                                "answer": "two",
+                            },
+                        }
+                    ]
+                },
+                {
+                    "blocks": [
+                        {
+                            "intended_usage": "ask_text_10_markdown",
+                            "markdown_block": {
+                                "progress": "DONE",
+                                "answer": "ten",
+                            },
+                        }
+                    ]
+                },
+                {
+                    "text_completed": True,
+                    "blocks": [
+                        {
+                            "intended_usage": "ask_text_1_markdown",
+                            "markdown_block": {
+                                "progress": "DONE",
+                                "answer": "one",
+                            },
+                        }
+                    ],
+                },
+            ]
+        )
+
+        with patch.object(client, "ask_stream", return_value=events):
+            response = client.ask("question")
+
+        assert response.text == "onetwoten"
+
+    def test_current_web_results_are_deduplicated_by_url(self):
+        """Current web_results diff blocks must populate unique citations."""
+        client = self._create_client()
+        events = iter(
+            [
+                {
+                    "blocks": [
+                        {
+                            "intended_usage": "web_results",
+                            "diff_block": {
+                                "field": "web_result_block",
+                                "patches": [
+                                    {
+                                        "op": "replace",
+                                        "path": "",
+                                        "value": {
+                                            "progress": "DONE",
+                                            "web_results": [
+                                                {
+                                                    "name": "Primary source",
+                                                    "url": "https://example.com/source",
+                                                    "snippet": "Evidence",
+                                                },
+                                                {
+                                                    "name": "Duplicate source",
+                                                    "url": "https://example.com/source",
+                                                    "snippet": "Duplicate",
+                                                },
+                                            ],
+                                        },
+                                    }
+                                ],
+                            },
+                        }
+                    ]
+                },
+                {
+                    "blocks": [
+                        {
+                            "intended_usage": "ask_text",
+                            "markdown_block": {
+                                "progress": "DONE",
+                                "chunks": [],
+                                "answer": "Answer with source",
+                            },
+                        }
+                    ]
+                },
+            ]
+        )
+
+        with patch.object(client, "ask_stream", return_value=events):
+            response = client.ask("question")
+
+        assert response.text == "Answer with source"
+        assert response.citations == [
+            {
+                "title": "Primary source",
+                "url": "https://example.com/source",
+                "snippet": "Evidence",
+            }
+        ]
+
+    def test_incremental_web_result_patch_adds_citation(self):
+        """Indexed web_results patches must be parsed as citation items."""
+        client = self._create_client()
+        events = iter(
+            [
+                {
+                    "blocks": [
+                        {
+                            "intended_usage": "web_results",
+                            "diff_block": {
+                                "field": "web_result_block",
+                                "patches": [
+                                    {
+                                        "op": "add",
+                                        "path": "/web_results/0",
+                                        "value": {
+                                            "name": "Incremental source",
+                                            "url": "https://example.com/incremental",
+                                            "snippet": "Incremental evidence",
+                                        },
+                                    }
+                                ],
+                            },
+                        }
+                    ]
+                },
+                {
+                    "blocks": [
+                        {
+                            "intended_usage": "ask_text",
+                            "markdown_block": {
+                                "progress": "DONE",
+                                "answer": "Answer",
+                            },
+                        }
+                    ]
+                },
+            ]
+        )
+
+        with patch.object(client, "ask_stream", return_value=events):
+            response = client.ask("question")
+
+        assert response.citations == [
+            {
+                "title": "Incremental source",
+                "url": "https://example.com/incremental",
+                "snippet": "Incremental evidence",
+            }
+        ]
+
+    def test_legacy_final_event_still_parses(self):
+        """Supporting the current schema must not regress legacy FINAL events."""
+        client = self._create_client()
+        nested_steps = [
+            {
+                "step_type": "FINAL",
+                "content": {"answer": json.dumps({"answer": "Legacy answer"})},
+            }
+        ]
+
+        with patch.object(
+            client,
+            "ask_stream",
+            return_value=iter(
+                [
+                    {
+                        "step_type": "FINAL",
+                        "text": json.dumps(nested_steps),
+                        "related_queries": ["next"],
+                    }
+                ]
+            ),
+        ):
+            response = client.ask("question")
+
+        assert response.text == "Legacy answer"
+        assert response.related_queries == ["next"]
+
+    def test_transport_timeout_returns_partial_answer(self):
+        """A transport timeout after text arrives must return marked partial data."""
+        client = self._create_client()
+
+        def events():
+            yield {
+                "blocks": [
+                    {
+                        "intended_usage": "ask_text",
+                        "markdown_block": {
+                            "progress": "IN_PROGRESS",
+                            "chunks": ["Partial answer"],
+                        },
+                    }
+                ]
+            }
+            raise CurlTimeout("upstream stalled")
+
+        with patch.object(client, "ask_stream", return_value=events()):
+            response = client.ask("question", timeout_seconds=45)
+
+        assert response.text == "Partial answer"
+        assert response.partial is True
+        assert response.warning is not None
+        assert "45" in response.warning
+
+    def test_transport_timeout_without_text_is_an_error(self):
+        """A timeout with no answer text must remain an explicit error."""
+        client = self._create_client()
+
+        def events():
+            raise CurlTimeout("upstream stalled")
+            yield
+
+        with patch.object(client, "ask_stream", return_value=events()):
+            with pytest.raises(CurlTimeout, match="no answer text"):
+                client.ask("question", timeout_seconds=45)
+
+    def test_total_deadline_returns_partial_and_closes_stream(self):
+        """The client-enforced total deadline must not wait for another chunk."""
+        client = self._create_client()
+        stream_closed = []
+
+        def events():
+            try:
+                yield {
+                    "blocks": [
+                        {
+                            "intended_usage": "ask_text",
+                            "markdown_block": {
+                                "progress": "IN_PROGRESS",
+                                "chunks": ["Partial by deadline"],
+                            },
+                        }
+                    ]
+                }
+                raise AssertionError("stream was consumed past the total deadline")
+            finally:
+                stream_closed.append(True)
+
+        times = iter([0.0, 46.0])
+        with patch.object(client, "ask_stream", return_value=events()):
+            with patch(
+                "src.core.perplexity_client.time.monotonic",
+                side_effect=lambda: next(times, 46.0),
+            ):
+                response = client.ask("question", timeout_seconds=45)
+
+        assert response.text == "Partial by deadline"
+        assert response.partial is True
+        assert stream_closed == [True]
+
+    def test_ask_stream_forwards_timeout_and_closes_http_response(self):
+        """The streaming HTTP response must close after iteration completes."""
+        client = self._create_client()
+        http_response = MagicMock()
+        http_response.status_code = 200
+        http_response.iter_content.return_value = [b'data: {"blocks": []}\n']
+
+        with patch(
+            "src.core.perplexity_client.cffi_requests.post",
+            return_value=http_response,
+        ) as post:
+            events = list(client.ask_stream("question", timeout_seconds=45))
+
+        assert events == [{"blocks": []}]
+        assert post.call_args.kwargs["timeout"] == 45
+        assert post.call_args.kwargs["curl_options"] == {CurlOpt.TIMEOUT_MS: 45_000}
+        http_response.close.assert_called_once_with()
 
 
 if __name__ == "__main__":

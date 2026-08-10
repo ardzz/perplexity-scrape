@@ -1,14 +1,15 @@
 """Tests for Perplexity SSE parser."""
 
 import pytest
-from src.services.sse_parser import PerplexitySSEParser
+
 from src.models.perplexity_models import (
-    PerplexitySSEEvent,
-    PerplexityBlock,
     DiffBlock,
     JSONPatch,
     MarkdownBlock,
+    PerplexityBlock,
+    PerplexitySSEEvent,
 )
+from src.services.sse_parser import PerplexitySSEParser
 
 
 class TestParseEventData:
@@ -374,6 +375,11 @@ class TestParseBlock:
 
 class TestIsMarkdownBlock:
     """Tests for is_markdown_block method."""
+
+    def test_plain_ask_text_returns_true(self):
+        """Should recognize the current plain 'ask_text' answer block."""
+        result = PerplexitySSEParser.is_markdown_block("ask_text")
+        assert result is True
 
     def test_ask_text_markdown_returns_true(self):
         """Should return True for 'ask_text_markdown'."""
